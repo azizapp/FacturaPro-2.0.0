@@ -108,9 +108,45 @@ const App: React.FC = () => {
         const inv = invoices.find(i => i.id === selectedInvoiceId);
         const cli = clients.find(c => c.id === inv?.clientId);
         return inv && cli ? <InvoiceDetailView invoice={inv} client={cli} company={company} onBack={() => setActiveView('invoices')} onAddPayment={(id) => setShowPaymentModal(id)} onPdf={(id) => setShowInvoicePdf(id)} onDelete={(id) => setItemToDelete({ id, type: 'invoice' })} /> : <div className="p-8 text-center text-slate-500">Facture non trouvée</div>;
-      case 'client-form': return <ClientForm initialClient={clients.find(c => c.id === selectedClientId)} onSubmit={selectedClientId ? updateClient : addClient} onCancel={() => setActiveView('clients')} companyEmail={company?.email} />;
-      case 'invoice-form': return <InvoiceForm clients={clients} products={products} company={company} invoices={invoices} initialInvoice={invoices.find(i => i.id === selectedInvoiceId)} onSubmit={selectedInvoiceId ? updateInvoice : addInvoice} onCancel={() => setActiveView('invoices')} />;
-      case 'product-form': return <ProductForm onSubmit={addProduct} onCancel={() => setActiveView('products')} />;
+      case 'client-form': 
+        return (
+          <ClientForm 
+            initialClient={clients.find(c => c.id === selectedClientId)} 
+            onSubmit={(client) => {
+              if (selectedClientId) updateClient(client);
+              else addClient(client);
+              setActiveView('clients');
+            }} 
+            onCancel={() => setActiveView('clients')} 
+            companyEmail={company?.email} 
+          />
+        );
+      case 'invoice-form': 
+        return (
+          <InvoiceForm 
+            clients={clients} 
+            products={products} 
+            company={company} 
+            invoices={invoices} 
+            initialInvoice={invoices.find(i => i.id === selectedInvoiceId)} 
+            onSubmit={(invoice) => {
+              if (selectedInvoiceId) updateInvoice(invoice);
+              else addInvoice(invoice);
+              setActiveView('invoices');
+            }} 
+            onCancel={() => setActiveView('invoices')} 
+          />
+        );
+      case 'product-form': 
+        return (
+          <ProductForm 
+            onSubmit={(product) => {
+              addProduct(product);
+              setActiveView('products');
+            }} 
+            onCancel={() => setActiveView('products')} 
+          />
+        );
       default: return <Dashboard invoices={invoices} clients={clients} />;
     }
   };
