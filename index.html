@@ -5,74 +5,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FacturaPro - Système de Facturation Professionnel</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <!-- Ajout de html2pdf.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <style>
-        :root {
-            --font-main: 'Inter', sans-serif;
-            --font-size-base: 13px;
-            --line-height-base: 21px;
-        }
-        body { 
-            font-family: var(--font-main); 
-            font-weight: 400;
-            font-size: var(--font-size-base);
-            line-height: var(--line-height-base);
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-        * { 
-            font-family: var(--font-main);
-            font-weight: 400; 
-        }
-        p, span, div, td, th, input, select, textarea, button, li, a {
-            font-size: var(--font-size-base);
-            line-height: var(--line-height-base);
-        }
-        b, strong, h1, h2, h3, h4, .font-bold, .font-semibold { 
-            font-weight: 600; 
-        }
-        .font-black { 
-            font-weight: 600; 
-        }
-        .text-xs { font-size: 11px !important; line-height: 16px !important; }
-        .text-sm { font-size: 13px !important; line-height: 21px !important; }
-        .text-base { font-size: 14px !important; line-height: 21px !important; }
-        .text-lg { font-size: 16px !important; line-height: 24px !important; }
-        .text-xl { font-size: 18px !important; line-height: 26px !important; }
-        .text-2xl { font-size: 22px !important; line-height: 30px !important; }
-
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 5px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
-    </style>
+<link rel="stylesheet" href="/index.css">
 <script type="importmap">
 {
   "imports": {
+    "@google/genai": "https://esm.sh/@google/genai@^1.40.0",
     "react/": "https://esm.sh/react@^19.2.4/",
     "react": "https://esm.sh/react@^19.2.4",
     "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
     "recharts": "https://esm.sh/recharts@^3.7.0",
-    "@google/genai": "https://esm.sh/@google/genai@^1.38.0",
-    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.39.7"
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@^2.95.3"
   }
 }
 </script>
 </head>
 <body class="bg-slate-50 text-slate-900">
     <div id="root"></div>
+<script type="module" src="/index.tsx"></script>
 </body>
 </html>

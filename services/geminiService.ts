@@ -1,7 +1,8 @@
+
 import { GoogleGenAI } from "@google/genai";
 import { Invoice, Client, InvoiceStatus } from "../types";
 
-const client = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const generateFollowUpEmail = async (invoice: Invoice, clientData: Client): Promise<string> => {
   const prompt = `Génère un email professionnel de relance pour la facture suivante :
@@ -13,11 +14,11 @@ export const generateFollowUpEmail = async (invoice: Invoice, clientData: Client
   L'email doit être poli, professionnel, et rédigé en français. Ne mets pas d'objet, juste le corps du message.`;
 
   try {
-    const result = await client.models.generateContent({
-      model: "gemini-1.5-flash",
-      contents: [{ role: "user", parts: [{ text: prompt }] }]
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: prompt
     });
-    return result.text || "Impossible de générer l'email.";
+    return response.text || "Impossible de générer l'email.";
   } catch (error) {
     console.error("Gemini Error:", error);
     return "Erreur lors de la génération de l'email par l'IA.";
@@ -47,13 +48,15 @@ export const summarizeInvoices = async (invoices: Invoice[]): Promise<any> => {
   Réponds uniquement en français au format JSON.`;
 
   try {
-    const result = await client.models.generateContent({
-      model: "gemini-1.5-flash",
-      contents: [{ role: "user", parts: [{ text: prompt }] }]
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json"
+      }
     });
-    const text = result.text || "";
-    const jsonStr = text.match(/\{.*\}/s)?.[0] || text;
-    return JSON.parse(jsonStr);
+    const text = response.text || "";
+    return JSON.parse(text);
   } catch (error) {
     console.error("Gemini JSON Analysis Error:", error);
     return {

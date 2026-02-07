@@ -1,22 +1,111 @@
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 :root {
   --font-main: 'Inter', sans-serif;
+  --font-size-base: 13px;
+  --line-height-base: 21px;
 }
 
 body {
   font-family: var(--font-main);
+  font-weight: 400;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Custom transitions for smooth dark mode */
+* {
+  font-family: var(--font-main);
+  font-weight: 400;
+}
+
+p,
+span,
+div,
+td,
+th,
+input,
+select,
+textarea,
+button,
+li,
+a {
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+}
+
+b,
+strong,
+h1,
+h2,
+h3,
+h4,
+.font-bold,
+.font-semibold {
+  font-weight: 600;
+}
+
+.font-black {
+  font-weight: 600;
+}
+
+/* Typography Overrides */
+.text-xs {
+  font-size: 11px !important;
+  line-height: 16px !important;
+}
+
+.text-sm {
+  font-size: 13px !important;
+  line-height: 21px !important;
+}
+
+.text-base {
+  font-size: 14px !important;
+  line-height: 21px !important;
+}
+
+.text-lg {
+  font-size: 16px !important;
+  line-height: 24px !important;
+}
+
+.text-xl {
+  font-size: 18px !important;
+  line-height: 26px !important;
+}
+
+.text-2xl {
+  font-size: 22px !important;
+  line-height: 30px !important;
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Theme Transitions */
 .transition-theme {
   transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, fill 0.3s ease;
 }
 
+/* Dark Mode Overrides */
 .dark body {
   background-color: #0f172a;
   color: #f8fafc;

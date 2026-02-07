@@ -100,9 +100,11 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
       return;
     }
 
-    // Remarque : window.confirm est bloqué en sandbox iframe sans permissions explicites.
-    // On appelle directement le callback du parent qui va déclencher le modal de l'App.
-    onDeletePayment?.(invoiceId, paymentId);
+    // Correctly call the parent's onDeletePayment callback.
+    // App.tsx handles the confirmation modal to avoid 'confirm()' issues in sandboxes.
+    if (onDeletePayment) {
+      onDeletePayment(invoiceId, paymentId);
+    }
   };
 
   const TabItem: React.FC<{ label: string }> = ({ label }) => (
@@ -184,13 +186,14 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
                   <h2 className="text-2xl font-black text-slate-800 uppercase tracking-tight">{selectedClient.name}</h2>
                   <p className="text-xs text-slate-400 font-medium italic mt-1">{selectedClient.address} • {selectedClient.city}</p>
                 </div>
-                <div className="flex space-x-2">                  <button
-                  onClick={handleShareWhatsApp}
-                  className="w-10 h-10 bg-[#25D366] text-white rounded-xl flex items-center justify-center hover:bg-[#128C7E] transition-all shadow-sm"
-                  title="Partager Relevé sur WhatsApp"
-                >
-                  <i className="fab fa-whatsapp text-lg"></i>
-                </button>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={handleShareWhatsApp}
+                    className="w-10 h-10 bg-[#25D366] text-white rounded-xl flex items-center justify-center hover:bg-[#128C7E] transition-all shadow-sm"
+                    title="Partager Relevé sur WhatsApp"
+                  >
+                    <i className="fab fa-whatsapp text-lg"></i>
+                  </button>
                   <button
                     onClick={handleShareEmail}
                     className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center hover:bg-blue-100 transition-all shadow-sm"
