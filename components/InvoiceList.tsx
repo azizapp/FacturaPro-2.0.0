@@ -100,9 +100,11 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
       return;
     }
     
-    // Remarque : window.confirm est bloqué en sandbox iframe sans permissions explicites.
-    // On appelle directement le callback du parent qui va déclencher le modal de l'App.
-    onDeletePayment?.(invoiceId, paymentId);
+    // NOTE: On n'utilise PLUS window.confirm() car il est bloqué dans les sandbox.
+    // On délègue la confirmation au composant parent (App.tsx) via onDeletePayment.
+    if (onDeletePayment) {
+      onDeletePayment(invoiceId, paymentId);
+    }
   };
 
   const TabItem: React.FC<{ label: string }> = ({ label }) => (
@@ -263,7 +265,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
                           const paid = (inv.payments || []).reduce((sum, p) => sum + p.amount, 0);
                           const pieces = inv.items.reduce((sum, item) => sum + item.quantity, 0);
                           return (
-                            <tr key={inv.id} className="hover:bg-slate-50 transition-colors">
+                            <tr key={inv.id} className="hover:bg-slate-50/30 transition-colors">
                               <td className="px-6 py-4 text-xs text-slate-500 text-left">{new Date(inv.date).toLocaleDateString('fr-FR')}</td>
                               <td className="px-6 py-4 text-xs font-bold text-indigo-600 uppercase text-left">{inv.number}</td>
                               <td className="px-6 py-4 text-center text-xs font-bold text-slate-600">{pieces}</td>
@@ -296,7 +298,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
                       </thead>
                       <tbody className="divide-y divide-slate-50">
                         {clientPayments.map((p) => (
-                          <tr key={p.id} className="hover:bg-slate-50 transition-colors">
+                          <tr key={p.id} className="hover:bg-slate-50/30 transition-colors">
                             <td className="px-6 py-4 text-xs text-slate-500 text-left">{new Date(p.date).toLocaleDateString('fr-FR')}</td>
                             <td className="px-6 py-4 text-xs font-bold text-indigo-600 uppercase text-left">{p.invoiceNumber}</td>
                             <td className="px-6 py-4 text-xs font-medium text-slate-600 uppercase text-left">{p.method}</td>
@@ -349,7 +351,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
                         </thead>
                         <tbody className="divide-y divide-slate-100 border-b border-slate-200">
                            {operationsWithBalance.map((op, idx) => (
-                             <tr key={idx} className="hover:bg-slate-50 transition-colors">
+                             <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
                                 <td className="py-3 px-4 text-[10px] text-slate-500 font-medium">{new Date(op.date).toLocaleDateString('fr-FR')}</td>
                                 <td className="py-3 px-4 text-[10px] font-bold text-slate-700">{op.type} ({op.reference})</td>
                                 <td className="py-3 px-4 text-right text-[10px] font-medium text-slate-800">{op.debit > 0 ? op.debit.toLocaleString() : '-'}</td>
