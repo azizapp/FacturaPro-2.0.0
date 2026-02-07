@@ -97,3 +97,7 @@ export interface Invoice {
   grandTotal: number;
   payments?: Payment[];
 }
+export interface User {
+  id: string;
+  email: string;
+}

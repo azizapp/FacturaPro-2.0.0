@@ -1,6 +1,6 @@
 import { Invoice, Client, Product, Company } from '../types';
 import { jsonDatabase } from './jsonDatabase';
-import { db } from './supabaseMock';
+import { db } from './supabaseService';
 
 interface SyncStatus {
   isSyncing: boolean;

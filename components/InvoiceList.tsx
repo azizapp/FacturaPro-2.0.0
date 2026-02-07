@@ -34,8 +34,8 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
 
   const selectedClient = clients.find(c => c.id === selectedClientId);
   const clientInvoices = invoices.filter(inv => inv.clientId === selectedClientId);
-  
-  const clientPayments = clientInvoices.flatMap(inv => 
+
+  const clientPayments = clientInvoices.flatMap(inv =>
     (inv.payments || []).map(p => ({
       ...p,
       invoiceNumber: inv.number,
@@ -99,20 +99,17 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
       console.error("Identifiants manquants pour la suppression:", { invoiceId, paymentId });
       return;
     }
-    
-    // NOTE: On n'utilise PLUS window.confirm() car il est bloqué dans les sandbox.
-    // On délègue la confirmation au composant parent (App.tsx) via onDeletePayment.
-    if (onDeletePayment) {
-      onDeletePayment(invoiceId, paymentId);
-    }
+
+    // Remarque : window.confirm est bloqué en sandbox iframe sans permissions explicites.
+    // On appelle directement le callback du parent qui va déclencher le modal de l'App.
+    onDeletePayment?.(invoiceId, paymentId);
   };
 
   const TabItem: React.FC<{ label: string }> = ({ label }) => (
     <button
       onClick={() => setActiveTab(label)}
-      className={`px-4 py-2 text-sm font-medium transition-all relative ${
-        activeTab === label ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-800'
-      }`}
+      className={`px-4 py-2 text-sm font-medium transition-all relative ${activeTab === label ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-800'
+        }`}
     >
       {label}
       {activeTab === label && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600"></div>}
@@ -129,17 +126,17 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
             </button>
           </div>
           <div className="relative">
-             <i className="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 text-xs"></i>
-             <input 
-               type="text" 
-               placeholder="Filtrer..." 
-               value={searchTermSidebar}
-               onChange={(e) => setSearchTermSidebar(e.target.value)}
-               className="w-full pl-8 pr-3 py-1.5 border border-slate-200 rounded-lg text-xs outline-none focus:ring-1 focus:ring-indigo-500 transition-all"
-             />
+            <i className="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 text-xs"></i>
+            <input
+              type="text"
+              placeholder="Filtrer..."
+              value={searchTermSidebar}
+              onChange={(e) => setSearchTermSidebar(e.target.value)}
+              className="w-full pl-8 pr-3 py-1.5 border border-slate-200 rounded-lg text-xs outline-none focus:ring-1 focus:ring-indigo-500 transition-all"
+            />
           </div>
         </div>
-        
+
         <div className="flex-1 overflow-y-auto custom-scrollbar">
           {activeClientsWithInvoices.length > 0 ? (
             activeClientsWithInvoices.map(client => {
@@ -149,16 +146,14 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
               const cBalance = cInvoiced - cPaid;
 
               return (
-                <div 
+                <div
                   key={client.id}
                   onClick={() => setSelectedClientId(client.id)}
-                  className={`p-4 border-b border-slate-100 cursor-pointer transition-colors flex items-center space-x-3 ${
-                    selectedClientId === client.id ? 'bg-white shadow-sm ring-1 ring-inset ring-slate-200 z-10' : 'hover:bg-white'
-                  }`}
+                  className={`p-4 border-b border-slate-100 cursor-pointer transition-colors flex items-center space-x-3 ${selectedClientId === client.id ? 'bg-white shadow-sm ring-1 ring-inset ring-slate-200 z-10' : 'hover:bg-white'
+                    }`}
                 >
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-[10px] ${
-                    selectedClientId === client.id ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-400'
-                  }`}>
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-[10px] ${selectedClientId === client.id ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-400'
+                    }`}>
                     {client.name.charAt(0)}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -189,22 +184,33 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
                   <h2 className="text-2xl font-black text-slate-800 uppercase tracking-tight">{selectedClient.name}</h2>
                   <p className="text-xs text-slate-400 font-medium italic mt-1">{selectedClient.address} • {selectedClient.city}</p>
                 </div>
-                <div className="flex space-x-2">
-                  <button 
-                    onClick={handleShareWhatsApp}
-                    className="w-10 h-10 bg-[#25D366] text-white rounded-xl flex items-center justify-center hover:bg-[#128C7E] transition-all shadow-sm"
-                    title="Partager Relevé sur WhatsApp"
-                  >
-                    <i className="fab fa-whatsapp text-lg"></i>
-                  </button>
-                  <button 
+                <div className="flex space-x-2">                  <button
+                  onClick={handleShareWhatsApp}
+                  className="w-10 h-10 bg-[#25D366] text-white rounded-xl flex items-center justify-center hover:bg-[#128C7E] transition-all shadow-sm"
+                  title="Partager Relevé sur WhatsApp"
+                >
+                  <i className="fab fa-whatsapp text-lg"></i>
+                </button>
+                  <button
                     onClick={handleShareEmail}
                     className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center hover:bg-blue-100 transition-all shadow-sm"
                     title="Email"
                   >
                     <i className="far fa-envelope"></i>
                   </button>
-                  <button 
+                  <button
+                    onClick={async () => {
+                      if (!selectedClient) return;
+                      const { summarizeInvoices } = await import('../services/geminiService');
+                      const analysis = await summarizeInvoices(clientInvoices);
+                      alert(`Rapport IA pour ${selectedClient.name} :\n\n${analysis.summary}\n\nRecommandation : ${analysis.recommendation}`);
+                    }}
+                    className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center hover:bg-indigo-100 transition-all shadow-sm"
+                    title="Diagnostic IA du Compte"
+                  >
+                    <i className="fas fa-brain"></i>
+                  </button>
+                  <button
                     onClick={() => onExportStatement?.(selectedClientId)}
                     className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 uppercase tracking-widest flex items-center space-x-2"
                   >
@@ -226,22 +232,22 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
               {activeTab === "Vue d'ensemble" && (
                 <div className="max-w-5xl mx-auto space-y-6 animate-in fade-in duration-300">
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                     <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Total Pièces</p>
-                        <p className="text-xl font-black text-slate-800">{totalPieces} <span className="text-[10px] text-slate-400">UNITÉS</span></p>
-                     </div>
-                     <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Total Facturé</p>
-                        <p className="text-xl font-black text-slate-800">{totalInvoiced.toLocaleString()} <span className="text-[10px] text-slate-400">MAD</span></p>
-                     </div>
-                     <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Total Recouvré</p>
-                        <p className="text-xl font-black text-emerald-500">{totalCollected.toLocaleString()} <span className="text-[10px] text-slate-400">MAD</span></p>
-                     </div>
-                     <div className="bg-white p-6 rounded-3xl border border-rose-100 shadow-sm ring-1 ring-rose-50">
-                        <p className="text-[10px] font-bold text-rose-400 uppercase tracking-widest mb-2">Solde Restant</p>
-                        <p className="text-xl font-black text-rose-500">{soldeDebiteur.toLocaleString()} <span className="text-[10px] text-rose-300">MAD</span></p>
-                     </div>
+                    <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Total Pièces</p>
+                      <p className="text-xl font-black text-slate-800">{totalPieces} <span className="text-[10px] text-slate-400">UNITÉS</span></p>
+                    </div>
+                    <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Total Facturé</p>
+                      <p className="text-xl font-black text-slate-800">{totalInvoiced.toLocaleString()} <span className="text-[10px] text-slate-400">MAD</span></p>
+                    </div>
+                    <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Total Recouvré</p>
+                      <p className="text-xl font-black text-emerald-500">{totalCollected.toLocaleString()} <span className="text-[10px] text-slate-400">MAD</span></p>
+                    </div>
+                    <div className="bg-white p-6 rounded-3xl border border-rose-100 shadow-sm ring-1 ring-rose-50">
+                      <p className="text-[10px] font-bold text-rose-400 uppercase tracking-widest mb-2">Solde Restant</p>
+                      <p className="text-xl font-black text-rose-500">{soldeDebiteur.toLocaleString()} <span className="text-[10px] text-rose-300">MAD</span></p>
+                    </div>
                   </div>
                 </div>
               )}
@@ -265,7 +271,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
                           const paid = (inv.payments || []).reduce((sum, p) => sum + p.amount, 0);
                           const pieces = inv.items.reduce((sum, item) => sum + item.quantity, 0);
                           return (
-                            <tr key={inv.id} className="hover:bg-slate-50/30 transition-colors">
+                            <tr key={inv.id} className="hover:bg-slate-50 transition-colors">
                               <td className="px-6 py-4 text-xs text-slate-500 text-left">{new Date(inv.date).toLocaleDateString('fr-FR')}</td>
                               <td className="px-6 py-4 text-xs font-bold text-indigo-600 uppercase text-left">{inv.number}</td>
                               <td className="px-6 py-4 text-center text-xs font-bold text-slate-600">{pieces}</td>
@@ -298,13 +304,13 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
                       </thead>
                       <tbody className="divide-y divide-slate-50">
                         {clientPayments.map((p) => (
-                          <tr key={p.id} className="hover:bg-slate-50/30 transition-colors">
+                          <tr key={p.id} className="hover:bg-slate-50 transition-colors">
                             <td className="px-6 py-4 text-xs text-slate-500 text-left">{new Date(p.date).toLocaleDateString('fr-FR')}</td>
                             <td className="px-6 py-4 text-xs font-bold text-indigo-600 uppercase text-left">{p.invoiceNumber}</td>
                             <td className="px-6 py-4 text-xs font-medium text-slate-600 uppercase text-left">{p.method}</td>
                             <td className="px-6 py-4 text-right text-xs font-bold text-emerald-600">+{p.amount.toLocaleString()} MAD</td>
                             <td className="px-6 py-4 text-center">
-                              <button 
+                              <button
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleDelete(p.originalInvoiceId, p.id);
@@ -325,50 +331,50 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
 
               {activeTab === 'Relevé' && (
                 <div className="max-w-5xl mx-auto space-y-6 animate-in fade-in duration-500">
-                   <div className="bg-white shadow-xl border border-slate-200 p-12 font-sans text-slate-900 mx-auto w-full max-w-4xl min-h-[600px]">
-                     <div className="flex justify-between items-start mb-12 pb-8 border-b border-slate-100">
-                        <div>
-                           <div className="mb-4">
-                             <span className="text-3xl font-black text-orange-500 tracking-tighter">FACTURAPRO<span className="text-xs align-top">™</span></span>
-                           </div>
-                           <p className="text-[10px] text-slate-800 font-bold uppercase">{company.name}</p>
+                  <div className="bg-white shadow-xl border border-slate-200 p-12 font-sans text-slate-900 mx-auto w-full max-w-4xl min-h-[600px]">
+                    <div className="flex justify-between items-start mb-12 pb-8 border-b border-slate-100">
+                      <div>
+                        <div className="mb-4">
+                          <span className="text-3xl font-black text-orange-500 tracking-tighter">FACTURAPRO<span className="text-xs align-top">™</span></span>
                         </div>
-                        <div className="text-right">
-                           <h1 className="text-xl font-black text-slate-800 uppercase tracking-widest mb-1">Relevé de Compte</h1>
-                           <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Client: {selectedClient.name}</p>
-                        </div>
-                     </div>
+                        <p className="text-[10px] text-slate-800 font-bold uppercase">{company.name}</p>
+                      </div>
+                      <div className="text-right">
+                        <h1 className="text-xl font-black text-slate-800 uppercase tracking-widest mb-1">Relevé de Compte</h1>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Client: {selectedClient.name}</p>
+                      </div>
+                    </div>
 
-                     <table className="w-full mb-12 border-collapse">
-                        <thead>
-                           <tr className="bg-slate-900 text-white">
-                              <th className="py-3 px-4 text-left text-[9px] font-bold uppercase tracking-widest">Date</th>
-                              <th className="py-3 px-4 text-left text-[9px] font-bold uppercase tracking-widest">Nature</th>
-                              <th className="py-3 px-4 text-right text-[9px] font-bold uppercase tracking-widest">Débit</th>
-                              <th className="py-3 px-4 text-right text-[9px] font-bold uppercase tracking-widest">Crédit</th>
-                              <th className="py-3 px-4 text-right text-[9px] font-bold uppercase tracking-widest bg-slate-800">Solde</th>
-                           </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100 border-b border-slate-200">
-                           {operationsWithBalance.map((op, idx) => (
-                             <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                                <td className="py-3 px-4 text-[10px] text-slate-500 font-medium">{new Date(op.date).toLocaleDateString('fr-FR')}</td>
-                                <td className="py-3 px-4 text-[10px] font-bold text-slate-700">{op.type} ({op.reference})</td>
-                                <td className="py-3 px-4 text-right text-[10px] font-medium text-slate-800">{op.debit > 0 ? op.debit.toLocaleString() : '-'}</td>
-                                <td className="py-3 px-4 text-right text-[10px] font-medium text-emerald-600">{op.credit > 0 ? op.credit.toLocaleString() : '-'}</td>
-                                <td className="py-3 px-4 text-right text-[10px] font-black text-slate-900 bg-slate-50/50">{op.balance.toLocaleString()}</td>
-                             </tr>
-                           ))}
-                        </tbody>
-                        <tfoot>
-                           <tr className="bg-slate-50 font-black">
-                              <td colSpan={2} className="py-4 px-4 text-[9px] uppercase tracking-widest">Totals</td>
-                              <td className="py-4 px-4 text-right text-[11px]">{totalInvoiced.toLocaleString()}</td>
-                              <td className="py-4 px-4 text-right text-[11px] text-emerald-600">{totalCollected.toLocaleString()}</td>
-                              <td className="py-4 px-4 text-right text-[12px] text-rose-500 bg-rose-50">{soldeDebiteur.toLocaleString()} MAD</td>
-                           </tr>
-                        </tfoot>
-                     </table>
+                    <table className="w-full mb-12 border-collapse">
+                      <thead>
+                        <tr className="bg-slate-900 text-white">
+                          <th className="py-3 px-4 text-left text-[9px] font-bold uppercase tracking-widest">Date</th>
+                          <th className="py-3 px-4 text-left text-[9px] font-bold uppercase tracking-widest">Nature</th>
+                          <th className="py-3 px-4 text-right text-[9px] font-bold uppercase tracking-widest">Débit</th>
+                          <th className="py-3 px-4 text-right text-[9px] font-bold uppercase tracking-widest">Crédit</th>
+                          <th className="py-3 px-4 text-right text-[9px] font-bold uppercase tracking-widest bg-slate-800">Solde</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 border-b border-slate-200">
+                        {operationsWithBalance.map((op, idx) => (
+                          <tr key={idx} className="hover:bg-slate-50 transition-colors">
+                            <td className="py-3 px-4 text-[10px] text-slate-500 font-medium">{new Date(op.date).toLocaleDateString('fr-FR')}</td>
+                            <td className="py-3 px-4 text-[10px] font-bold text-slate-700">{op.type} ({op.reference})</td>
+                            <td className="py-3 px-4 text-right text-[10px] font-medium text-slate-800">{op.debit > 0 ? op.debit.toLocaleString() : '-'}</td>
+                            <td className="py-3 px-4 text-right text-[10px] font-medium text-emerald-600">{op.credit > 0 ? op.credit.toLocaleString() : '-'}</td>
+                            <td className="py-3 px-4 text-right text-[10px] font-black text-slate-900 bg-slate-50/50">{op.balance.toLocaleString()}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                      <tfoot>
+                        <tr className="bg-slate-50 font-black">
+                          <td colSpan={2} className="py-4 px-4 text-[9px] uppercase tracking-widest">Totals</td>
+                          <td className="py-4 px-4 text-right text-[11px]">{totalInvoiced.toLocaleString()}</td>
+                          <td className="py-4 px-4 text-right text-[11px] text-emerald-600">{totalCollected.toLocaleString()}</td>
+                          <td className="py-4 px-4 text-right text-[12px] text-rose-500 bg-rose-50">{soldeDebiteur.toLocaleString()} MAD</td>
+                        </tr>
+                      </tfoot>
+                    </table>
                   </div>
                 </div>
               )}
