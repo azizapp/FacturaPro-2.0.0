@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useMemo } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
 import { Invoice, Client, InvoiceStatus } from '../types';
 import { summarizeInvoices } from '../services/geminiService';
@@ -9,83 +10,34 @@ interface DashboardProps {
   clients: Client[];
 }
 
-interface AiAnalysisResult {
-  summary: string;
-  insights: string[];
-  recommendation: string;
-}
-
 const Dashboard: React.FC<DashboardProps> = ({ invoices, clients }) => {
   const { theme } = useAppContext();
-  const [aiAnalysis, setAiAnalysis] = useState<AiAnalysisResult | null>(null);
+  const [aiAnalysis, setAiAnalysis] = useState<any>(null);
   const [analyzing, setAnalyzing] = useState(false);
-  const [mounted, setMounted] = useState(false);
 
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
+  const stats = useMemo(() => {
+    const totalHt = invoices.reduce((acc, inv) => acc + (inv.subtotal || 0), 0);
+    const totalTtc = invoices.reduce((acc, inv) => acc + (inv.grandTotal || 0), 0);
+    const totalPaid = invoices.reduce((acc, inv) => acc + (inv.payments?.reduce((sum, p) => sum + p.amount, 0) || 0), 0);
+    const pending = totalTtc - totalPaid;
+    return { totalHt, totalTtc, totalPaid, pending };
+  }, [invoices]);
 
-  const totalHt = invoices.reduce((acc, inv) => acc + (inv.subtotal || 0), 0);
-  const totalTva = invoices.reduce((acc, inv) => acc + (inv.tvaTotal || 0), 0);
-  const totalTtc = invoices.reduce((acc, inv) => acc + (inv.grandTotal || 0), 0);
-
-  const totalPaid = invoices.filter(i => i.status === InvoiceStatus.PAID || i.status === InvoiceStatus.PARTIAL)
-    .reduce((acc, inv) => acc + (inv.payments?.reduce((sum, p) => sum + p.amount, 0) || 0), 0);
-  const pendingRevenue = totalTtc - totalPaid;
-
-  const getMonthlyData = () => {
-    const monthNames = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", "Sept", "Oct", "Nov", "Déc"];
+  const monthlyData = useMemo(() => {
+    const monthNames = ["Jan", "Fév", "Mar", "Avr", "Mai", "Jun", "Jul", "Aoû", "Sep", "Oct", "Nov", "Déc"];
     const currentYear = new Date().getFullYear();
-    const data = [];
-
-    for (let i = 0; i < 12; i++) {
-      const invs = invoices.filter(inv => {
-        const invDate = new Date(inv.date);
-        return invDate.getMonth() === i && invDate.getFullYear() === currentYear;
-      });
-      const amount = invs.reduce((sum, inv) => sum + inv.grandTotal, 0);
-
-      data.push({
-        name: monthNames[i],
-        amount: amount,
-        count: invs.length
-      });
-    }
-    return data;
-  };
-
-  const getTopProducts = () => {
-    const productSales: Record<string, number> = {};
-    invoices.forEach(inv => {
-      inv.items.forEach(item => {
-        const name = item.productName || "Inconnu";
-        productSales[name] = (productSales[name] || 0) + (item.quantity * item.price);
-      });
+    return monthNames.map((name, i) => {
+      const amount = invoices
+        .filter(inv => {
+          const d = new Date(inv.date);
+          return d.getMonth() === i && d.getFullYear() === currentYear;
+        })
+        .reduce((sum, inv) => sum + inv.grandTotal, 0);
+      return { name, amount };
     });
-    return Object.entries(productSales)
-      .map(([name, value]) => ({ name, value }))
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 5);
-  };
+  }, [invoices]);
 
-  const getTopClients = () => {
-    const clientRevenue: Record<string, number> = {};
-    invoices.forEach(inv => {
-      const client = clients.find(c => c.id === inv.clientId);
-      const name = client?.name || "Client Inconnu";
-      clientRevenue[name] = (clientRevenue[name] || 0) + inv.grandTotal;
-    });
-    return Object.entries(clientRevenue)
-      .map(([name, value]) => ({ name, value }))
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 5);
-  };
-
-  const monthlyData = getMonthlyData();
-  const topProducts = getTopProducts();
-  const topClients = getTopClients();
-
-  const handleRequestAnalysis = async () => {
+  const handleAiAnalysis = async () => {
     setAnalyzing(true);
     try {
       const result = await summarizeInvoices(invoices);
@@ -100,214 +52,121 @@ const Dashboard: React.FC<DashboardProps> = ({ invoices, clients }) => {
   const isDark = theme === 'dark';
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700">
+    <div className="space-y-10 animate-in fade-in duration-700">
+      {/* Metrics Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          title="Chiffre d'Affaires HT"
-          value={`${totalHt.toLocaleString()} MAD`}
-          icon="fa-calculator"
-          color="bg-slate-700"
-          subtitle="Base imposable"
-          theme={theme}
-        />
-        <StatCard
-          title="TVA Collectée (20%)"
-          value={`${totalTva.toLocaleString()} MAD`}
-          icon="fa-percentage"
-          color="bg-indigo-600"
-          subtitle="Estimée"
-          theme={theme}
-        />
-        <StatCard
-          title="Total Revenu TTC"
-          value={`${totalTtc.toLocaleString()} MAD`}
-          icon="fa-wallet"
-          color="bg-blue-600"
-          subtitle="Montant net"
-          theme={theme}
-        />
-        <StatCard
-          title="Reste à Recouvrer"
-          value={`${pendingRevenue.toLocaleString()} MAD`}
-          icon="fa-clock"
-          color="bg-rose-500"
-          subtitle="Factures en attente"
-          theme={theme}
-        />
+        <MetricCard title="Chiffre d'Affaires" value={stats.totalTtc} icon="fa-chart-line" color="indigo" theme={theme} />
+        <MetricCard title="Total Encaissé" value={stats.totalPaid} icon="fa-wallet" color="emerald" theme={theme} />
+        <MetricCard title="Reste à Recouvrer" value={stats.pending} icon="fa-clock-rotate-left" color="rose" theme={theme} />
+        <MetricCard title="Nombre de Clients" value={clients.length} icon="fa-users" color="blue" isCurrency={false} theme={theme} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className={`lg:col-span-2 p-8 rounded-[12px] border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} shadow-sm`}>
-          <div className="flex justify-between items-center mb-10">
-            <div>
-              <h3 className={`text-lg font-black uppercase tracking-tight flex items-center ${isDark ? 'text-white' : 'text-slate-800'}`}>
-                <i className="fas fa-chart-line text-indigo-500 mr-3"></i>
-                Flux de Trésorerie ({new Date().getFullYear()})
-              </h3>
-              <p className="text-xs text-slate-400 mt-1">Revenu TTC mensuel cumulé</p>
-            </div>
+        {/* Main Chart */}
+        <div className="lg:col-span-2 bg-white dark:bg-slate-900 p-8 rounded-[32px] border border-slate-200 dark:border-white/5 shadow-sm">
+          <div className="flex justify-between items-center mb-8">
+            <h3 className="text-lg font-black uppercase tracking-tight dark:text-white flex items-center">
+              <span className="w-2 h-8 bg-indigo-500 rounded-full mr-4"></span>
+              Performance Annuelle
+            </h3>
           </div>
-          <div className="h-80 w-full min-h-[320px] relative block">
-            {mounted && (
-              <ResponsiveContainer width="100%" height="100%" minWidth={0} debounce={100}>
-                <AreaChart data={monthlyData}>
-                  <defs>
-                    <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.1} />
-                      <stop offset="95%" stopColor="#4f46e5" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDark ? '#334155' : '#f1f5f9'} />
-                  <XAxis dataKey="name" stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} dy={15} />
-                  <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(val) => `${(val / 1000).toFixed(0)}k`} />
-                  <Tooltip
-                    contentStyle={{
-                      borderRadius: '12px',
-                      border: 'none',
-                      backgroundColor: isDark ? '#1e293b' : '#ffffff',
-                      color: isDark ? '#f8fafc' : '#1e293b',
-                      boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)',
-                      padding: '16px'
-                    }}
-                    itemStyle={{ color: '#4f46e5', fontWeight: '800', fontSize: '12px' }}
-                  />
-                  <Area type="monotone" dataKey="amount" stroke="#4f46e5" strokeWidth={3} fillOpacity={1} fill="url(#colorAmount)" animationDuration={1500} />
-                </AreaChart>
-              </ResponsiveContainer>
+          <div className="h-[340px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={monthlyData}>
+                <defs>
+                  <linearGradient id="colorAmt" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.15}/>
+                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDark ? '#1e293b' : '#f1f5f9'} />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 11}} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 11}} tickFormatter={(v) => `${v/1000}k`} />
+                <Tooltip 
+                  contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', backgroundColor: isDark ? '#0f172a' : '#fff'}}
+                  itemStyle={{fontWeight: 'bold', color: '#6366f1'}}
+                />
+                <Area type="monotone" dataKey="amount" stroke="#6366f1" strokeWidth={4} fill="url(#colorAmt)" animationDuration={2000} />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* AI Sidebar */}
+        <div className="bg-indigo-600 rounded-[32px] p-8 text-white shadow-2xl shadow-indigo-500/20 relative overflow-hidden flex flex-col">
+          <div className="relative z-10 flex-1">
+            <div className="flex items-center space-x-3 mb-8">
+              <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center">
+                <i className="fas fa-sparkles text-xl"></i>
+              </div>
+              <h3 className="font-black text-xl tracking-tight">Analyste IA</h3>
+            </div>
+
+            {analyzing ? (
+              <div className="flex flex-col items-center justify-center py-20 space-y-4">
+                <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
+                <p className="text-xs font-bold uppercase tracking-widest opacity-60">Calcul des indicateurs...</p>
+              </div>
+            ) : aiAnalysis ? (
+              <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
+                <p className="text-sm font-medium leading-relaxed bg-white/10 p-4 rounded-2xl">{aiAnalysis.summary}</p>
+                <ul className="space-y-3">
+                  {aiAnalysis.insights.slice(0, 3).map((item: string, i: number) => (
+                    <li key={i} className="flex items-start text-xs font-medium">
+                      <i className="fas fa-check-circle mt-0.5 mr-3 text-indigo-300"></i>
+                      <span className="opacity-90">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="p-4 bg-amber-400/20 rounded-2xl border border-amber-400/30">
+                  <p className="text-[10px] font-black uppercase mb-1 tracking-widest text-amber-200">Conseil Stratégique</p>
+                  <p className="text-xs italic font-bold">"{aiAnalysis.recommendation}"</p>
+                </div>
+                <button onClick={handleAiAnalysis} className="w-full bg-white text-indigo-600 font-black py-4 rounded-2xl text-[11px] uppercase tracking-widest hover:bg-indigo-50 transition-colors">
+                  Ré-analyser
+                </button>
+              </div>
+            ) : (
+              <div className="text-center py-12 flex flex-col items-center">
+                <i className="fas fa-brain text-6xl opacity-20 mb-6"></i>
+                <p className="text-sm font-medium mb-8 opacity-80">Obtenez une analyse complète de votre santé financière en un clic.</p>
+                <button onClick={handleAiAnalysis} className="w-full bg-white text-indigo-600 font-black py-5 rounded-2xl text-[11px] uppercase tracking-[0.2em] shadow-xl hover:bg-indigo-50 transition-all">
+                  Générer Insights
+                </button>
+              </div>
             )}
           </div>
-        </div>
-
-        <div className="bg-slate-900 text-white p-8 rounded-[12px] shadow-2xl relative overflow-hidden flex flex-col min-h-[500px]">
-          <div className="relative z-10 h-full flex flex-col">
-            <div className="flex items-center space-x-4 mb-8">
-              <div className="bg-indigo-500/20 w-12 h-12 rounded-[10px] flex items-center justify-center text-indigo-400 shadow-inner">
-                <i className="fas fa-microchip text-2xl"></i>
-              </div>
-              <div>
-                <h3 className="font-black text-xl leading-tight uppercase tracking-tighter">Diagnostic IA</h3>
-                <p className="text-[10px] text-indigo-300 uppercase tracking-[0.2em] font-black opacity-70">Gemini 1.5 Pro</p>
-              </div>
-            </div>
-
-            <div className="flex-1 flex flex-col">
-              {analyzing ? (
-                <div className="flex flex-col items-center justify-center space-y-6 py-20">
-                  <div className="w-16 h-16 border-4 border-white/5 border-t-indigo-500 rounded-full animate-spin"></div>
-                  <p className="text-indigo-200 text-[10px] font-black uppercase tracking-[0.3em] animate-pulse">Analyse financière...</p>
-                </div>
-              ) : aiAnalysis ? (
-                <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 space-y-6">
-                  <div className="bg-indigo-500/10 border border-indigo-500/20 p-6 rounded-[12px]">
-                    <p className="text-sm text-white font-medium leading-relaxed">{aiAnalysis.summary}</p>
-                  </div>
-                  <div className="space-y-3">
-                    {aiAnalysis.insights.map((insight, idx) => (
-                      <div key={idx} className="flex items-start space-x-4 text-xs">
-                        <i className="fas fa-check text-emerald-400 mt-1"></i>
-                        <p className="text-slate-300 leading-relaxed font-medium">{insight}</p>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="bg-amber-500/10 border border-amber-500/20 p-6 rounded-[12px]">
-                    <p className="text-xs text-white leading-relaxed italic opacity-90 font-bold text-center">"{aiAnalysis.recommendation}"</p>
-                  </div>
-                  <button onClick={handleRequestAnalysis} className="w-full bg-white text-slate-900 font-black py-4 rounded-[10px] text-[10px] uppercase tracking-[0.2em] transition-all hover:bg-indigo-50">
-                    Mettre à jour
-                  </button>
-                </div>
-              ) : (
-                <div className="text-center py-16 h-full flex flex-col justify-center">
-                  <i className="fas fa-brain text-7xl text-indigo-500/10 mb-6"></i>
-                  <h4 className="text-lg font-black text-white mb-4 uppercase tracking-tighter">Insights Business</h4>
-                  <p className="text-xs text-slate-400 leading-relaxed mb-12 px-6">Générez un audit complet basé sur votre historique de facturation.</p>
-                  <button onClick={handleRequestAnalysis} className="w-full bg-indigo-600 text-white font-black py-5 rounded-[10px] text-[10px] uppercase tracking-[0.3em] hover:bg-indigo-500 transition-colors">
-                    Démarrer l'IA
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-          <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-600/10 rounded-full blur-[100px] -mr-40 -mt-40"></div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className={`p-8 rounded-[12px] border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} shadow-sm`}>
-          <h3 className={`text-sm font-black uppercase tracking-widest mb-8 flex items-center ${isDark ? 'text-white' : 'text-slate-800'}`}>
-            <i className="fas fa-star text-amber-500 mr-3"></i> Top Produits (Revenu)
-          </h3>
-          <div className="h-64 w-full min-h-[256px]">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-              <BarChart data={topProducts} layout="vertical" margin={{ left: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke={isDark ? '#334155' : '#f1f5f9'} />
-                <XAxis type="number" hide />
-                <YAxis dataKey="name" type="category" stroke="#94a3b8" fontSize={10} axisLine={false} tickLine={false} width={80} />
-                <Tooltip
-                  cursor={{ fill: 'transparent' }}
-                  contentStyle={{
-                    borderRadius: '8px',
-                    border: 'none',
-                    backgroundColor: isDark ? '#1e293b' : '#ffffff',
-                    fontSize: '11px',
-                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'
-                  }}
-                />
-                <Bar dataKey="value" fill="#6366f1" radius={[0, 4, 4, 0]} barSize={20}>
-                  {topProducts.map((_entry, index) => (
-                    <Cell key={`cell-${index}`} fill={['#6366f1', '#818cf8', '#a5b4fc', '#c7d2fe', '#e0e7ff'][index % 5]} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        <div className={`p-8 rounded-[12px] border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'} shadow-sm`}>
-          <h3 className={`text-sm font-black uppercase tracking-widest mb-8 flex items-center ${isDark ? 'text-white' : 'text-slate-800'}`}>
-            <i className="fas fa-user-crown text-indigo-500 mr-3"></i> Top Clients (Volume)
-          </h3>
-          <div className="h-64 w-full min-h-[256px]">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-              <BarChart data={topClients} layout="vertical" margin={{ left: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke={isDark ? '#334155' : '#f1f5f9'} />
-                <XAxis type="number" hide />
-                <YAxis dataKey="name" type="category" stroke="#94a3b8" fontSize={10} axisLine={false} tickLine={false} width={80} />
-                <Tooltip
-                  cursor={{ fill: 'transparent' }}
-                  contentStyle={{
-                    borderRadius: '8px',
-                    border: 'none',
-                    backgroundColor: isDark ? '#1e293b' : '#ffffff',
-                    fontSize: '11px',
-                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'
-                  }}
-                />
-                <Bar dataKey="value" fill="#4f46e5" radius={[0, 4, 4, 0]} barSize={20}>
-                  {topClients.map((_entry, index) => (
-                    <Cell key={`cell-${index}`} fill={['#4f46e5', '#4338ca', '#3730a3', '#312e81', '#1e1b4b'][index % 5]} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          {/* Decorative Circle */}
+          <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
         </div>
       </div>
     </div>
   );
 };
 
-const StatCard: React.FC<{ title: string, value: string, icon: string, color: string, subtitle?: string, theme?: string }> = ({ title, value, icon, color, subtitle, theme }) => {
+const MetricCard: React.FC<{title: string, value: number, icon: string, color: string, isCurrency?: boolean, theme?: string}> = ({title, value, icon, color, isCurrency = true, theme}) => {
   const isDark = theme === 'dark';
+  const colorMap: any = {
+    indigo: 'bg-indigo-500/10 text-indigo-600',
+    emerald: 'bg-emerald-500/10 text-emerald-600',
+    rose: 'bg-rose-500/10 text-rose-600',
+    blue: 'bg-blue-500/10 text-blue-600',
+  };
+
   return (
-    <div className={`p-7 rounded-[12px] border ${isDark ? 'bg-slate-800 border-slate-700 hover:border-indigo-500/50' : 'bg-white border-slate-200 hover:border-indigo-200'} shadow-sm flex items-center space-x-6 group transition-all duration-300`}>
-      <div className={`${color} w-14 h-14 rounded-[10px] flex items-center justify-center text-white shadow-lg`}>
-        <i className={`fas ${icon} text-xl`}></i>
+    <div className="bg-white dark:bg-slate-900 p-7 rounded-[28px] border border-slate-200 dark:border-white/5 shadow-sm group hover:-translate-y-1 transition-all">
+      <div className="flex items-center justify-between mb-6">
+        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all group-hover:scale-110 ${colorMap[color]}`}>
+          <i className={`fas ${icon} text-lg`}></i>
+        </div>
+        <div className="w-2 h-2 rounded-full bg-slate-200 dark:bg-slate-800"></div>
       </div>
       <div>
-        <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mb-1">{title}</p>
-        <h4 className={`text-lg font-black tracking-tighter ${isDark ? 'text-white' : 'text-slate-800'}`}>{value}</h4>
-        {subtitle && <p className="text-[9px] text-slate-400 font-medium italic mt-1">{subtitle}</p>}
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">{title}</p>
+        <h4 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+          {isCurrency ? value.toLocaleString() : value}
+          {isCurrency && <span className="text-xs ml-1 opacity-40">MAD</span>}
+        </h4>
       </div>
     </div>
   );

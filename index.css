@@ -1,93 +1,76 @@
 
-/* Reset and Base Styles */
-:root {
-  --brand-primary: #4f46e5;
-  --font-inter: 'Inter', sans-serif;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-body {
-  font-family: var(--font-inter);
-  font-size: 13px;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@layer base {
+  :root {
+    --brand-primary: #4f46e5;
+    --font-inter: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  body {
+    font-family: var(--font-inter);
+    @apply antialiased text-slate-900 bg-slate-50;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  .dark body {
+    @apply bg-slate-950 text-slate-100;
+  }
 }
 
 /* Custom Scrollbars */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
 
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 10px;
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 rounded-full transition-colors;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-400;
 }
 
-/* Animations Globales */
+.dark ::-webkit-scrollbar-thumb {
+  @apply bg-slate-800;
+}
+
+/* Animation Utilities */
 .animate-in {
-  animation-duration: 0.5s;
-  animation-fill-mode: both;
-}
-
-.fade-in {
-  animation-name: fadeIn;
-}
-
-.slide-in-from-bottom-4 {
-  animation-name: slideInBottom;
+  animation: fadeIn 0.4s cubic-bezier(0, 0, 0.2, 1) forwards;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes slideInBottom {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+/* Component Enhancements */
+.card-premium {
+  @apply bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 rounded-[24px] shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/5 hover:-translate-y-1;
 }
 
-/* Utility Classes enhancement */
-.shadow-xl {
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+.glass-panel {
+  @apply bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white/20 dark:border-white/5 rounded-[32px];
 }
 
-/* Dark Mode Overrides for deeper blacks */
-.dark body {
-  background-color: #0f172a;
+/* Table refinements */
+.table-modern thead th {
+  @apply py-5 px-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100 dark:border-white/5;
 }
 
-.dark .bg-white {
-  background-color: #1e293b !important;
+.table-modern tbody td {
+  @apply py-4 px-6 text-sm font-medium border-b border-slate-50 dark:border-white/5;
 }
 
-.dark .border-slate-200, .dark .border-slate-100 {
-  border-color: #334155 !important;
-}
-
-.dark .text-slate-800 { color: #f1f5f9 !important; }
-.dark .text-slate-900 { color: #ffffff !important; }
-.dark .text-slate-400 { color: #64748b !important; }
-
-/* Table Hover Effects */
-tr.hover\:bg-slate-50\/30:hover {
-  background-color: rgba(248, 250, 252, 0.5);
-}
-
-.dark tr.hover\:bg-slate-50\/30:hover {
-  background-color: rgba(30, 41, 59, 0.5);
-}
-
-/* Printable improvements */
-@media print {
-  .no-print { display: none !important; }
-  body { background: white !important; }
+/* Button glow effect */
+.btn-glow:hover {
+  box-shadow: 0 0 25px rgba(79, 70, 229, 0.4);
 }

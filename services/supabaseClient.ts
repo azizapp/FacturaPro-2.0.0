@@ -1,27 +1,52 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-/**
- * Récupération des variables d'environnement avec support des préfixes VITE_ 
- * (standard Vite) et sans préfixe (standard Railway/CI).
- */
-const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
-const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || '';
+// دالة متقدمة لجلب المتغيرات من أي مكان ممكن
+const getEnv = (key: string): string => {
+  // @ts-ignore
+  const env = import.meta.env || {};
+  // @ts-ignore
+  const processEnv = typeof process !== 'undefined' ? process.env : {};
+  
+  return (
+    env[`VITE_${key}`] || 
+    env[key] || 
+    processEnv[`VITE_${key}`] || 
+    processEnv[key] || 
+    window.localStorage.getItem(`SUPABASE_CUSTOM_${key}`) ||
+    ''
+  ).trim();
+};
 
-/**
- * Le SDK Supabase lève une erreur fatale si createClient est appelé avec une chaîne vide.
- * On utilise des placeholders pour permettre au bundle de charger sans crasher 
- * l'intégralité de l'interface utilisateur.
- */
-const finalUrl = supabaseUrl || 'https://placeholder.supabase.co';
-const finalKey = supabaseAnonKey || 'placeholder';
+const initialUrl = getEnv('SUPABASE_URL');
+const initialKey = getEnv('SUPABASE_ANON_KEY');
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn(
-    "⚠️ Configuration Supabase manquante ou incomplète.\n" +
-    "Assurez-vous d'avoir défini VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY dans vos variables d'environnement.\n" +
-    "L'application tentera de fonctionner en mode dégradé."
-  );
-}
+// التحقق من التهيئة
+export const isSupabaseConfigured = () => {
+  const url = getEnv('SUPABASE_URL');
+  const key = getEnv('SUPABASE_ANON_KEY');
+  return url.startsWith('http') && key.length > 10;
+};
 
-export const supabase = createClient(finalUrl, finalKey);
+// إنشاء العميل مع دعم التحديث الديناميكي
+const createSupabase = () => {
+  const url = getEnv('SUPABASE_URL') || 'http://localhost:54321';
+  const key = getEnv('SUPABASE_ANON_KEY') || 'placeholder-key';
+  
+  return createClient(url, key, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+    }
+  });
+};
+
+export let supabase = createSupabase();
+
+// دالة لتحديث الإعدادات يدوياً في حال فشل المتغيرات
+export const updateSupabaseConfig = (url: string, key: string) => {
+  window.localStorage.setItem('SUPABASE_CUSTOM_SUPABASE_URL', url);
+  window.localStorage.setItem('SUPABASE_CUSTOM_SUPABASE_ANON_KEY', key);
+  supabase = createSupabase();
+  return isSupabaseConfigured();
+};

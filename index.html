@@ -1,12 +1,12 @@
 
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FacturaPro - Système de Facturation Professionnel</title>
+    <title>FacturaPro - Excellence en Facturation</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -26,15 +26,17 @@
                             700: '#2d27c5',
                             800: '#2620a3',
                             900: '#1e1b85',
+                        },
+                        slate: {
+                            950: '#020617'
                         }
                     },
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
                     },
                     borderRadius: {
-                        'xl': '0.75rem',
-                        '2xl': '1rem',
                         '3xl': '1.5rem',
+                        '4xl': '2rem',
                     }
                 }
             }
@@ -54,7 +56,7 @@
     }
     </script>
 </head>
-<body class="bg-slate-50 text-slate-900 transition-colors duration-300">
+<body class="bg-slate-50 text-slate-900 transition-colors duration-500 overflow-x-hidden">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
 </body>
