@@ -28,14 +28,14 @@ const Settings: React.FC<SettingsProps> = ({ company, onUpdate }) => {
 
   return (
     <div className="max-w-5xl space-y-8 animate-in fade-in duration-500 pb-20">
-      <h3 className="text-2xl font-black text-slate-800 tracking-tight uppercase">Configuration</h3>
+      <h3 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight uppercase">Configuration</h3>
 
       <form onSubmit={handleSubmit} className="space-y-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-1">
-            <div className="bg-white p-8 rounded-[12px] shadow-sm border border-slate-200 space-y-8">
-              <h4 className="text-[11px] font-black text-indigo-600 uppercase border-b pb-2">Identité</h4>
-              <div onClick={() => logoInputRef.current?.click()} className="h-32 rounded-[12px] border-2 border-dashed border-slate-200 flex items-center justify-center cursor-pointer bg-slate-50 overflow-hidden">
+            <div className="bg-white dark:bg-[#27354c] p-8 rounded-[12px] shadow-sm border border-slate-200 dark:border-white/5 space-y-8">
+              <h4 className="text-[11px] font-black text-indigo-600 dark:text-indigo-400 uppercase border-b border-slate-100 dark:border-white/5 pb-2">Identité</h4>
+              <div onClick={() => logoInputRef.current?.click()} className="h-32 rounded-[12px] border-2 border-dashed border-slate-200 dark:border-white/10 flex items-center justify-center cursor-pointer bg-slate-50 dark:bg-slate-900/30 overflow-hidden">
                 {formData.logo ? <img src={formData.logo} className="h-full object-contain" /> : <span className="text-xs text-slate-400">Logo</span>}
                 <input type="file" ref={logoInputRef} className="hidden" onChange={handleFileChange('logo')} />
               </div>
@@ -43,41 +43,41 @@ const Settings: React.FC<SettingsProps> = ({ company, onUpdate }) => {
           </div>
 
           <div className="lg:col-span-2 space-y-8">
-            <div className="bg-white p-8 rounded-[12px] shadow-sm border border-slate-200 space-y-8">
-               <h4 className="text-[11px] font-black text-orange-500 uppercase border-b pb-2">Général</h4>
+            <div className="bg-white dark:bg-[#27354c] p-8 rounded-[12px] shadow-sm border border-slate-200 dark:border-white/5 space-y-8">
+               <h4 className="text-[11px] font-black text-orange-500 dark:text-orange-400 uppercase border-b border-slate-100 dark:border-white/5 pb-2">Général</h4>
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                  <div className="md:col-span-2 space-y-2">
                    <label className="text-[10px] font-bold text-slate-400 uppercase">Raison Sociale</label>
-                   <input type="text" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-[8px] px-5 py-4 text-sm font-bold outline-none" />
+                   <input type="text" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full bg-slate-50 dark:bg-slate-900/30 border border-slate-200 dark:border-white/5 rounded-[8px] px-5 py-4 text-sm font-bold outline-none text-slate-800 dark:text-white" />
                  </div>
                  <div className="space-y-2">
                    <label className="text-[10px] font-bold text-slate-400 uppercase">ICE</label>
-                   <input type="text" value={formData.siret} onChange={(e) => setFormData({...formData, siret: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-[8px] px-5 py-4 text-sm font-bold outline-none" />
+                   <input type="text" value={formData.siret} onChange={(e) => setFormData({...formData, siret: e.target.value})} className="w-full bg-slate-50 dark:bg-slate-900/30 border border-slate-200 dark:border-white/5 rounded-[8px] px-5 py-4 text-sm font-bold outline-none text-slate-800 dark:text-white" />
                  </div>
                  <div className="space-y-2">
                    <label className="text-[10px] font-bold text-slate-400 uppercase">E-mail</label>
-                   <input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-[8px] px-5 py-4 text-sm font-bold outline-none" />
+                   <input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="w-full bg-slate-50 dark:bg-slate-900/30 border border-slate-200 dark:border-white/5 rounded-[8px] px-5 py-4 text-sm font-bold outline-none text-slate-800 dark:text-white" />
                  </div>
                </div>
             </div>
 
-            <div className="bg-white p-8 rounded-[12px] shadow-sm border border-slate-200 space-y-6">
-              <h4 className="text-[11px] font-black text-indigo-600 uppercase border-b pb-2">Numérotation</h4>
+            <div className="bg-white dark:bg-[#27354c] p-8 rounded-[12px] shadow-sm border border-slate-200 dark:border-white/5 space-y-6">
+              <h4 className="text-[11px] font-black text-indigo-600 dark:text-indigo-400 uppercase border-b border-slate-100 dark:border-white/5 pb-2">Numérotation</h4>
               <div className="grid grid-cols-2 gap-6">
-                <input type="text" value={formData.invoice_prefix || ''} onChange={(e) => setFormData({...formData, invoice_prefix: e.target.value})} placeholder="Prefixe" className="w-full bg-slate-50 border border-slate-200 rounded-[8px] px-5 py-4 text-sm font-bold text-indigo-600 outline-none" />
-                <input type="number" value={formData.invoice_start_number || 1} onChange={(e) => setFormData({...formData, invoice_start_number: parseInt(e.target.value) || 1})} className="w-full bg-slate-50 border border-slate-200 rounded-[8px] px-5 py-4 text-sm font-bold outline-none" />
+                <input type="text" value={formData.invoice_prefix || ''} onChange={(e) => setFormData({...formData, invoice_prefix: e.target.value})} placeholder="Prefixe" className="w-full bg-slate-50 dark:bg-slate-900/30 border border-slate-200 dark:border-white/5 rounded-[8px] px-5 py-4 text-sm font-bold text-indigo-600 dark:text-indigo-400 outline-none" />
+                <input type="number" value={formData.invoice_start_number || 1} onChange={(e) => setFormData({...formData, invoice_start_number: parseInt(e.target.value) || 1})} className="w-full bg-slate-50 dark:bg-slate-900/30 border border-slate-200 dark:border-white/5 rounded-[8px] px-5 py-4 text-sm font-bold outline-none text-slate-800 dark:text-white" />
               </div>
             </div>
 
-            <div className="bg-white p-8 rounded-[12px] shadow-sm border border-slate-200 space-y-6">
-              <h4 className="text-[11px] font-black text-emerald-600 uppercase border-b pb-2">Pied de Page</h4>
+            <div className="bg-white dark:bg-[#27354c] p-8 rounded-[12px] shadow-sm border border-slate-200 dark:border-white/5 space-y-6">
+              <h4 className="text-[11px] font-black text-emerald-600 dark:text-emerald-400 uppercase border-b border-slate-100 dark:border-white/5 pb-2">Pied de Page</h4>
               <div className="space-y-2">
                 <label className="text-[10px] font-bold text-slate-400 uppercase">Texte du pied de page</label>
                 <textarea 
                   value={formData.footer || ''} 
                   onChange={(e) => setFormData({...formData, footer: e.target.value})}
                   placeholder="Entrez le texte à afficher en bas de chaque facture"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-[8px] px-5 py-4 text-sm font-bold outline-none min-h-[100px] resize-none"
+                  className="w-full bg-slate-50 dark:bg-slate-900/30 border border-slate-200 dark:border-white/5 rounded-[8px] px-5 py-4 text-sm font-bold outline-none min-h-[100px] resize-none text-slate-800 dark:text-slate-200"
                 />
               </div>
             </div>

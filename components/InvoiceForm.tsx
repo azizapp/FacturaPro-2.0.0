@@ -84,50 +84,50 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, company, i
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
-      <div className="bg-white p-8 rounded-[12px] shadow-sm border border-slate-200">
-        <h2 className="text-xl font-bold text-slate-800 uppercase tracking-tight mb-8">Détails de la Facture</h2>
+      <div className="bg-white dark:bg-[#27354c] p-8 rounded-[12px] shadow-sm border border-slate-200 dark:border-white/5">
+        <h2 className="text-xl font-bold text-slate-800 dark:text-white uppercase tracking-tight mb-8">Détails de la Facture</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
           <div className="relative" ref={dropdownRef}>
             <label className="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Client</label>
-            <div onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="w-full bg-slate-50 border border-slate-200 rounded-[8px] px-4 py-3 cursor-pointer text-xs font-bold">
+            <div onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 rounded-[8px] px-4 py-3 cursor-pointer text-xs font-bold dark:text-white">
               {selectedClient ? selectedClient.name : 'Chercher un client...'}
             </div>
             {isDropdownOpen && (
-              <div className="absolute z-50 mt-2 w-full bg-white rounded-[12px] shadow-2xl border border-slate-100 overflow-hidden">
-                <div className="p-3 bg-slate-50"><input type="text" value={clientSearch} onChange={(e) => setClientSearch(e.target.value)} className="w-full px-3 py-2 border rounded-[8px] text-xs outline-none" /></div>
+              <div className="absolute z-50 mt-2 w-full bg-white dark:bg-slate-800 rounded-[12px] shadow-2xl border border-slate-100 dark:border-white/10 overflow-hidden">
+                <div className="p-3 bg-slate-50 dark:bg-slate-900/50"><input type="text" value={clientSearch} onChange={(e) => setClientSearch(e.target.value)} className="w-full px-3 py-2 border rounded-[8px] text-xs outline-none dark:bg-slate-800 dark:text-white dark:border-white/5" /></div>
                 {clients.filter(c => c.name.toLowerCase().includes(clientSearch.toLowerCase())).map(c => (
-                  <div key={c.id} onClick={() => { setClientId(c.id); setIsDropdownOpen(false); }} className="px-4 py-3 text-xs hover:bg-indigo-50 cursor-pointer">{c.name}</div>
+                  <div key={c.id} onClick={() => { setClientId(c.id); setIsDropdownOpen(false); }} className="px-4 py-3 text-xs hover:bg-indigo-50 dark:hover:bg-indigo-500/10 cursor-pointer dark:text-slate-200">{c.name}</div>
                 ))}
               </div>
             )}
           </div>
-          <div><label className="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Date</label><input type="date" value={invoiceDate} onChange={(e) => setInvoiceDate(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-[8px] px-4 py-3 text-xs font-bold" /></div>
-          <div><label className="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Échéance</label><input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-[8px] px-4 py-3 text-xs font-bold" /></div>
-          <div><label className="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Bon de Commande</label><input type="text" value={poNumber} onChange={(e) => setPoNumber(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-[8px] px-4 py-3 text-xs font-bold" /></div>
+          <div><label className="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Date</label><input type="date" value={invoiceDate} onChange={(e) => setInvoiceDate(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 rounded-[8px] px-4 py-3 text-xs font-bold dark:text-white" /></div>
+          <div><label className="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Échéance</label><input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 rounded-[8px] px-4 py-3 text-xs font-bold dark:text-white" /></div>
+          <div><label className="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Bon de Commande</label><input type="text" value={poNumber} onChange={(e) => setPoNumber(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 rounded-[8px] px-4 py-3 text-xs font-bold dark:text-white" /></div>
         </div>
 
         <div className="space-y-4 mb-12">
           {items.map((item) => (
-            <div key={item.id} className="grid grid-cols-12 gap-4 items-center p-4 bg-slate-50 rounded-[12px] border border-slate-100">
-              <div className="col-span-4"><select value={item.productId || ''} onChange={(e) => handleItemChange(item.id!, 'productId', e.target.value)} className="w-full bg-white border border-slate-200 rounded-[8px] px-3 py-2 text-xs font-bold"><option value="">Produit...</option>{products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></div>
-              <div className="col-span-2"><input type="number" value={item.quantity} onChange={(e) => handleItemChange(item.id!, 'quantity', parseFloat(e.target.value))} className="w-full bg-white border border-slate-200 rounded-[8px] px-3 py-2 text-xs text-center font-bold" /></div>
-              <div className="col-span-2"><input type="number" value={item.price} onChange={(e) => handleItemChange(item.id!, 'price', parseFloat(e.target.value))} className="w-full bg-white border border-slate-200 rounded-[8px] px-3 py-2 text-xs text-right font-bold" /></div>
-              <div className="col-span-3 text-right font-bold text-xs">{((item.price || 0) * (item.quantity || 0)).toLocaleString()} MAD</div>
+            <div key={item.id} className="grid grid-cols-12 gap-4 items-center p-4 bg-slate-50 dark:bg-slate-900/40 rounded-[12px] border border-slate-100 dark:border-white/5">
+              <div className="col-span-4"><select value={item.productId || ''} onChange={(e) => handleItemChange(item.id!, 'productId', e.target.value)} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/5 rounded-[8px] px-3 py-2 text-xs font-bold dark:text-white"><option value="">Produit...</option>{products.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></div>
+              <div className="col-span-2"><input type="number" value={item.quantity} onChange={(e) => handleItemChange(item.id!, 'quantity', parseFloat(e.target.value))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/5 rounded-[8px] px-3 py-2 text-xs text-center font-bold dark:text-white" /></div>
+              <div className="col-span-2"><input type="number" value={item.price} onChange={(e) => handleItemChange(item.id!, 'price', parseFloat(e.target.value))} className="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/5 rounded-[8px] px-3 py-2 text-xs text-right font-bold dark:text-white" /></div>
+              <div className="col-span-3 text-right font-bold text-xs dark:text-slate-200">{((item.price || 0) * (item.quantity || 0)).toLocaleString()} MAD</div>
               <div className="col-span-1 text-center"><button type="button" onClick={() => handleRemoveItem(item.id!)} className="text-rose-400"><i className="fas fa-trash-alt"></i></button></div>
             </div>
           ))}
-          <button type="button" onClick={handleAddItem} className="w-full py-4 border-2 border-dashed border-slate-100 rounded-[12px] text-slate-400 text-[10px] font-black uppercase">Ajouter une ligne</button>
+          <button type="button" onClick={handleAddItem} className="w-full py-4 border-2 border-dashed border-slate-100 dark:border-white/10 rounded-[12px] text-slate-400 text-[10px] font-black uppercase">Ajouter une ligne</button>
         </div>
 
         <div className="flex flex-col md:flex-row justify-between gap-12">
-          <textarea value={notes} onChange={(e) => setNotes(e.target.value)} className="flex-1 bg-slate-50 border border-slate-200 rounded-[12px] p-5 text-xs min-h-[140px]" placeholder="Notes..."></textarea>
-          <div className="w-full md:w-[350px] p-8 bg-slate-50 rounded-[12px] space-y-4 shadow-inner border border-slate-100">
-             <div className="flex items-center justify-between pb-4 border-b border-slate-200/50">
-               <span className="text-[10px] font-black uppercase text-indigo-600 tracking-widest">Activer la TVA (20%)</span>
+          <textarea value={notes} onChange={(e) => setNotes(e.target.value)} className="flex-1 bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 rounded-[12px] p-5 text-xs min-h-[140px] dark:text-slate-200" placeholder="Notes..."></textarea>
+          <div className="w-full md:w-[350px] p-8 bg-slate-50 dark:bg-slate-900/40 rounded-[12px] space-y-4 shadow-inner border border-slate-100 dark:border-white/5">
+             <div className="flex items-center justify-between pb-4 border-b border-slate-200/50 dark:border-white/5">
+               <span className="text-[10px] font-black uppercase text-indigo-600 dark:text-indigo-400 tracking-widest">Activer la TVA (20%)</span>
                <button 
                 type="button"
                 onClick={() => setTaxEnabled(!taxEnabled)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${taxEnabled ? 'bg-indigo-600' : 'bg-slate-300'}`}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${taxEnabled ? 'bg-indigo-600' : 'bg-slate-300 dark:bg-slate-700'}`}
                >
                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${taxEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
                </button>
@@ -143,14 +143,14 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, company, i
                <span>{tvaTotal.toLocaleString()} MAD</span>
              </div>
              
-             <div className="space-y-2 pt-2 border-t border-slate-200/50">
+             <div className="space-y-2 pt-2 border-t border-slate-200/50 dark:border-white/5">
                <div className="flex items-center justify-between gap-4">
                  <label className="text-[10px] font-bold text-rose-400 uppercase shrink-0">Remise (Déd.)</label>
                  <input 
                    type="number" 
                    value={discountAmount} 
                    onChange={(e) => setDiscountAmount(parseFloat(e.target.value) || 0)} 
-                   className="w-24 bg-white border border-slate-200 rounded-[6px] px-2 py-1 text-xs text-right font-bold text-rose-500 outline-none"
+                   className="w-24 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/5 rounded-[6px] px-2 py-1 text-xs text-right font-bold text-rose-500 outline-none"
                  />
                </div>
                <div className="flex items-center justify-between gap-4">
@@ -159,12 +159,12 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, company, i
                    type="number" 
                    value={adjustmentAmount} 
                    onChange={(e) => setAdjustmentAmount(parseFloat(e.target.value) || 0)} 
-                   className="w-24 bg-white border border-slate-200 rounded-[6px] px-2 py-1 text-xs text-right font-bold text-slate-700 outline-none"
+                   className="w-24 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/5 rounded-[6px] px-2 py-1 text-xs text-right font-bold text-slate-700 dark:text-slate-200 outline-none"
                  />
                </div>
              </div>
 
-             <div className="flex justify-between text-lg font-black pt-4 border-t border-slate-200 text-indigo-600">
+             <div className="flex justify-between text-lg font-black pt-4 border-t border-slate-200 dark:border-white/5 text-indigo-600 dark:text-indigo-400">
                <span>TOTAL TTC</span>
                <span>{grandTotal.toLocaleString()} MAD</span>
              </div>
