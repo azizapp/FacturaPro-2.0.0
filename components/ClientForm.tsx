@@ -17,32 +17,37 @@ const InputWrapper: React.FC<{ label: string, children: React.ReactNode }> = ({ 
 );
 
 const ClientForm: React.FC<ClientFormProps> = ({ initialClient, onSubmit, onCancel, companyEmail }) => {
-  const [formData, setFormData] = useState<Partial<Client>>({
-    name: '',
-    manager: '',
-    location: '',
-    city: '',
-    region: '',
-    address: '',
-    gsm1: '',
-    gsm2: '',
-    phone: '',
-    email: '',
-    gamme: '',
-    user_email: companyEmail || '',
-    is_blocked: false,
-    balance: 0,
-    ice: ''
+  // Direct initialization from initialClient if provided, otherwise defaults
+  const [formData, setFormData] = useState<Client>(() => {
+    if (initialClient) return { ...initialClient };
+    
+    return {
+      id: crypto.randomUUID(),
+      name: '',
+      manager: '',
+      location: '',
+      city: '',
+      region: '',
+      address: '',
+      gsm1: '',
+      gsm2: '',
+      phone: '',
+      email: '',
+      gamme: '',
+      user_email: localStorage.getItem('user_email_preference') || companyEmail || '',
+      is_blocked: false,
+      balance: 0,
+      ice: '',
+      created_at: new Date().toISOString()
+    };
   });
 
+  // Keep state in sync if initialClient changes externally
   useEffect(() => {
-    const savedUserEmail = localStorage.getItem('user_email_preference');
-    if (savedUserEmail && !initialClient) {
-      setFormData(prev => ({ ...prev, user_email: savedUserEmail }));
-    } else if (companyEmail && !initialClient) {
-      setFormData(prev => ({ ...prev, user_email: companyEmail }));
+    if (initialClient) {
+      setFormData({ ...initialClient });
     }
-  }, [companyEmail, initialClient]);
+  }, [initialClient]);
 
   const handleInputChange = useCallback((field: keyof Client, value: any) => {
     setFormData(prev => ({
@@ -55,37 +60,12 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialClient, onSubmit, onCanc
     }
   }, []);
 
-  useEffect(() => {
-    if (initialClient) {
-      setFormData(initialClient);
-    }
-  }, [initialClient]);
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name) return alert('Le nom du client est requis.');
-
-    const client: Client = {
-      id: initialClient?.id || crypto.randomUUID(),
-      name: formData.name!,
-      manager: formData.manager || '',
-      location: formData.location || '',
-      city: formData.city || '',
-      region: formData.region || '',
-      address: formData.address || '',
-      gsm1: formData.gsm1 || '',
-      gsm2: formData.gsm2 || '',
-      phone: formData.phone || '',
-      email: formData.email || '',
-      gamme: formData.gamme || '',
-      user_email: formData.user_email || '',
-      is_blocked: formData.is_blocked || false,
-      balance: formData.balance || 0,
-      ice: formData.ice || '',
-      created_at: initialClient?.created_at || new Date().toISOString()
-    };
-
-    onSubmit(client);
+    if (!formData.name.trim()) return alert('Le nom du client est requis.');
+    
+    // Ensure we are passing the full object
+    onSubmit(formData);
   };
 
   const renderInput = (field: keyof Client, value: any, props: React.InputHTMLAttributes<HTMLInputElement>) => (
@@ -110,7 +90,9 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialClient, onSubmit, onCanc
           <h3 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight">
             {initialClient ? 'Modifier le Client' : 'Nouveau Compte Client'}
           </h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 font-medium italic">Configuration complète conforme à la base de données centrale.</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 font-medium italic">
+            {initialClient ? `Mise à jour des informations de : ${initialClient.name}` : 'Configuration complète conforme à la base de données centrale.'}
+          </p>
         </div>
       </div>
 
@@ -230,35 +212,26 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialClient, onSubmit, onCanc
               <InputWrapper label="Région">
                 {renderInput('region', formData.region, {
                   type: "text",
-                  placeholder: "Ex: Casablanca-Settat"
+                  placeholder: "Ex: Grand Casablanca"
                 })}
               </InputWrapper>
-              <div className="md:col-span-3">
-                <InputWrapper label="Emplacement (Location / GPS)">
-                  {renderInput('location', formData.location, {
-                    type: "text",
-                    placeholder: "Lien Google Maps ou Coordonnées"
-                  })}
-                </InputWrapper>
-              </div>
             </div>
           </div>
         </div>
 
-        <div className="flex justify-end space-x-4 pt-8 border-t border-slate-100 dark:border-white/5">
+        <div className="flex justify-end space-x-4">
           <button 
             type="button" 
-            onClick={onCancel}
-            className="px-10 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] hover:text-slate-600 dark:hover:text-white transition-colors"
+            onClick={onCancel} 
+            className="px-8 py-4 text-[10px] font-bold uppercase text-slate-400"
           >
-            Abandonner
+            Annuler
           </button>
           <button 
-            type="submit"
-            className="bg-indigo-600 text-white px-12 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-indigo-600/30 hover:bg-indigo-700 hover:-translate-y-1 transition-all flex items-center space-x-3"
+            type="submit" 
+            className="px-12 py-4 bg-indigo-600 text-white rounded-[12px] text-[10px] font-black uppercase shadow-xl"
           >
-            <i className="fas fa-check-double text-xs"></i>
-            <span>{initialClient ? 'Mettre à jour le compte' : 'Créer le compte client'}</span>
+            {initialClient ? 'Mettre à jour' : 'Enregistrer le Client'}
           </button>
         </div>
       </form>

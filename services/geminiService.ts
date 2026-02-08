@@ -1,7 +1,8 @@
 
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Type } from "@google/genai";
 import { Invoice, Client, InvoiceStatus } from "../types";
 
+// Always use const ai = new GoogleGenAI({apiKey: process.env.API_KEY});
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const generateFollowUpEmail = async (invoice: Invoice, clientData: Client): Promise<string> => {
@@ -14,10 +15,12 @@ export const generateFollowUpEmail = async (invoice: Invoice, clientData: Client
   L'email doit être poli, professionnel, et rédigé en français. Ne mets pas d'objet, juste le corps du message.`;
 
   try {
+    // Generate content from the model using prompt and model name
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: prompt
     });
+    // Extract text from GenerateContentResponse using .text property
     return response.text || "Impossible de générer l'email.";
   } catch (error) {
     console.error("Gemini Error:", error);
@@ -39,23 +42,40 @@ export const summarizeInvoices = async (invoices: Invoice[]): Promise<any> => {
   - Factures réglées : ${paidCount}
   - Dossiers en cours : ${pendingCount}
   
-  Fournis une réponse JSON strictement respectant ce format :
-  {
-    "summary": "Résumé de la situation financière en 1 phrase.",
-    "insights": ["Observation 1", "Observation 2", "Observation 3"],
-    "recommendation": "Conseil stratégique prioritaire"
-  }
-  Réponds uniquement en français au format JSON.`;
+  Fournis une réponse JSON en français.`;
 
   try {
+    // Generate structured JSON output using responseSchema for better reliability
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: prompt,
       config: {
-        responseMimeType: "application/json"
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            summary: {
+              type: Type.STRING,
+              description: "Résumé de la situation financière en 1 phrase.",
+            },
+            insights: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.STRING,
+              },
+              description: "Observations clés sur la situation financière.",
+            },
+            recommendation: {
+              type: Type.STRING,
+              description: "Conseil stratégique prioritaire.",
+            },
+          },
+          required: ["summary", "insights", "recommendation"],
+        }
       }
     });
-    const text = response.text || "";
+    // Use .text property to get the generated string
+    const text = response.text?.trim() || "{}";
     return JSON.parse(text);
   } catch (error) {
     console.error("Gemini JSON Analysis Error:", error);

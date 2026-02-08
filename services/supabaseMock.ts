@@ -44,7 +44,7 @@ export const db = {
     while (!finished) {
       const { data, error } = await supabase
         .from('customers')
-        .select('id, name, manager, location, city, region, address, gsm1, gsm2, phone, email, gamme, user_email, is_blocked, created_at')
+        .select('id, name, manager, location, city, region, address, gsm1, gsm2, phone, email, gamme, user_email, is_blocked, created_at, ice')
         .order('name', { ascending: true })
         .range(from, to);
 
@@ -74,7 +74,7 @@ export const db = {
     const { data, error } = await supabase
       .from('customers')
       .insert([clientToInsert])
-      .select('id, name, manager, location, city, region, address, gsm1, gsm2, phone, email, gamme, user_email, is_blocked, created_at')
+      .select('id, name, manager, location, city, region, address, gsm1, gsm2, phone, email, gamme, user_email, is_blocked, created_at, ice')
       .single();
 
     if (error) throw error;
@@ -87,7 +87,7 @@ export const db = {
       .from('customers')
       .update(updates)
       .eq('id', id)
-      .select('id, name, manager, location, city, region, address, gsm1, gsm2, phone, email, gamme, user_email, is_blocked, created_at')
+      .select('id, name, manager, location, city, region, address, gsm1, gsm2, phone, email, gamme, user_email, is_blocked, created_at, ice')
       .single();
 
     if (error) throw error;
@@ -200,9 +200,11 @@ export const db = {
     const itemsToInsert = invoice.items.map(item => ({
       invoice_id: invData.id,
       product_id: item.productId,
+      // Fix: item.product_name -> item.productName
       product_name: item.productName,
       quantity: item.quantity,
       price: item.price,
+      // Fix: item.tva_rate -> item.tvaRate
       tva_rate: item.tvaRate,
       discount: item.discount
     }));
@@ -226,8 +228,11 @@ export const db = {
         notes: invoice.notes,
         subtotal: invoice.subtotal,
         tva_total: invoice.tvaTotal,
+        // Fix: invoice.discount_amount -> invoice.discountAmount
         discount_amount: invoice.discountAmount || 0,
+        // Fix: invoice.adjustment_amount -> invoice.adjustmentAmount
         adjustment_amount: invoice.adjustmentAmount || 0,
+        // Fix: invoice.grand_total -> invoice.grandTotal
         grand_total: invoice.grandTotal
       })
       .eq('id', invoice.id);
@@ -238,10 +243,11 @@ export const db = {
     const itemsToInsert = invoice.items.map(item => ({
       invoice_id: invoice.id,
       product_id: item.productId,
-      // Fix: property 'product_name' does not exist on type 'InvoiceItem', changed to 'productName'
+      // Fix: item.product_name -> item.productName
       product_name: item.productName,
       quantity: item.quantity,
       price: item.price,
+      // Fix: item.tva_rate -> item.tvaRate
       tva_rate: item.tvaRate,
       discount: item.discount
     }));
@@ -267,6 +273,7 @@ export const db = {
         amount: payment.amount,
         date: payment.date,
         method: payment.method,
+        // Fix: payment.check_image -> payment.checkImage
         check_image: payment.checkImage,
         note: payment.note
       }]);

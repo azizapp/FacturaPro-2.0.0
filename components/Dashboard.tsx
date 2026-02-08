@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Invoice, Client, InvoiceStatus } from '../types';
@@ -53,10 +54,10 @@ const Dashboard: React.FC<DashboardProps> = ({ invoices, clients }) => {
     invoices.forEach(inv => {
       inv.items.forEach(item => {
         const prodName = (item.productName || "").toUpperCase();
-        const matchedGamma = targetGammas.find(gamma => 
+        const matchedGamma = targetGammas.find(gamma =>
           prodName.includes(gamma.toUpperCase())
         );
-        
+
         if (matchedGamma) {
           map.set(matchedGamma, (map.get(matchedGamma) || 0) + item.quantity);
         }
@@ -85,17 +86,17 @@ const Dashboard: React.FC<DashboardProps> = ({ invoices, clients }) => {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500 pb-12">
-      {/* Metrics Row */}
+      {/* Metrics Row - Updated with standard layout */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard title="Chiffre d'Affaires" value={stats.totalTtc} icon="fa-chart-line" color="indigo" theme={theme} />
-        <MetricCard title="Total Encaissé" value={stats.totalPaid} icon="fa-wallet" color="emerald" theme={theme} />
-        <MetricCard title="Reste à Recouvrer" value={stats.pending} icon="fa-clock-rotate-left" color="rose" theme={theme} />
-        <MetricCard title="Nombre de Clients" value={clients.length} icon="fa-users" color="blue" isCurrency={false} theme={theme} />
+        <MetricCard title="Chiffre d'Affaires" value={stats.totalTtc} icon="fa-chart-line" color="indigo" />
+        <MetricCard title="Total Encaissé" value={stats.totalPaid} icon="fa-wallet" color="emerald" />
+        <MetricCard title="Reste à Recouvrer" value={stats.pending} icon="fa-clock-rotate-left" color="rose" />
+        <MetricCard title="Nombre de Clients" value={clients.length} icon="fa-users" color="blue" isCurrency={false} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Chart */}
-        <div className="lg:col-span-2 bg-white dark:bg-slate-900 p-6 rounded-[15px] border border-slate-200 dark:border-white/5 shadow-sm">
+        <div className="lg:col-span-2 bg-white dark:bg-[#1b263b] p-6 rounded-[15px] border border-slate-200 dark:border-white/10 shadow-sm">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-sm font-black uppercase tracking-widest dark:text-white flex items-center">
               <span className="w-1 h-4 bg-indigo-500 rounded-full mr-2"></span>
@@ -107,16 +108,16 @@ const Dashboard: React.FC<DashboardProps> = ({ invoices, clients }) => {
               <AreaChart data={monthlyData}>
                 <defs>
                   <linearGradient id="colorAmt" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.1}/>
-                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.1} />
+                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDark ? '#1e293b' : '#f1f5f9'} />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10}} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 10}} tickFormatter={(v) => `${v/1000}k`} />
-                <Tooltip 
-                  contentStyle={{borderRadius: '15px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', backgroundColor: isDark ? '#0f172a' : '#fff'}}
-                  itemStyle={{fontWeight: 'bold', color: '#6366f1', fontSize: '12px'}}
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} tickFormatter={(v) => `${v / 1000}k`} />
+                <Tooltip
+                  contentStyle={{ borderRadius: '15px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', backgroundColor: isDark ? '#0f172a' : '#fff' }}
+                  itemStyle={{ fontWeight: 'bold', color: '#6366f1', fontSize: '12px' }}
                 />
                 <Area type="monotone" dataKey="amount" stroke="#6366f1" strokeWidth={3} fill="url(#colorAmt)" animationDuration={1500} />
               </AreaChart>
@@ -125,7 +126,7 @@ const Dashboard: React.FC<DashboardProps> = ({ invoices, clients }) => {
         </div>
 
         {/* AI Sidebar */}
-        <div className="bg-[#27354c] rounded-[15px] p-6 text-white shadow-xl relative overflow-hidden flex flex-col border border-white/5">
+        <div className="bg-indigo-600 dark:bg-[#1b263b] rounded-[15px] p-6 text-white shadow-xl relative overflow-hidden flex flex-col border border-indigo-500/20 dark:border-white/10 transition-all duration-300">
           <div className="relative z-10 flex-1">
             <div className="flex items-center space-x-2 mb-6">
               <div className="w-10 h-10 bg-white/10 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/10">
@@ -154,17 +155,19 @@ const Dashboard: React.FC<DashboardProps> = ({ invoices, clients }) => {
                   <p className="text-[8px] font-black uppercase mb-1 tracking-widest text-indigo-300">Recommandation</p>
                   <p className="text-[11px] italic font-bold text-slate-200">"{aiAnalysis.recommendation}"</p>
                 </div>
-                <button onClick={handleAiAnalysis} className="w-full bg-indigo-600 text-white font-black py-3 rounded-xl text-[10px] uppercase tracking-widest hover:bg-indigo-500 transition-all">
-                  Actualiser
-                </button>
+                <div className="pt-2">
+                  <button onClick={handleAiAnalysis} className="w-full bg-white/20 dark:bg-indigo-600 text-white font-black py-3 rounded-xl text-[10px] uppercase tracking-widest hover:bg-white/30 dark:hover:bg-indigo-500 transition-all">
+                    Actualiser
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="text-center py-8 flex flex-col items-center">
                 <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4">
-                   <i className="fas fa-brain text-3xl opacity-20"></i>
+                  <i className="fas fa-brain text-3xl opacity-20"></i>
                 </div>
                 <p className="text-[10px] font-medium mb-6 opacity-60 uppercase tracking-widest">Lancez l'intelligence artificielle</p>
-                <button onClick={handleAiAnalysis} className="w-full bg-white text-slate-900 font-black py-3 rounded-xl text-[10px] uppercase tracking-widest shadow-lg hover:bg-slate-100 transition-all">
+                <button onClick={handleAiAnalysis} className="w-full bg-white text-indigo-600 dark:bg-indigo-600 dark:text-white font-black py-3 rounded-xl text-[10px] uppercase tracking-widest shadow-lg hover:bg-slate-100 dark:hover:bg-indigo-500 transition-all">
                   Analyser les données
                 </button>
               </div>
@@ -175,7 +178,7 @@ const Dashboard: React.FC<DashboardProps> = ({ invoices, clients }) => {
       </div>
 
       {/* Sales Performance Table */}
-      <div className="bg-white dark:bg-slate-900 rounded-[15px] border border-slate-200 dark:border-white/5 shadow-sm p-8 overflow-hidden">
+      <div className="bg-white dark:bg-[#1b263b] rounded-[15px] border border-slate-200 dark:border-white/10 shadow-sm p-8 overflow-hidden">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h3 className="text-base font-black text-slate-800 dark:text-white uppercase tracking-tight">Performance des Ventes</h3>
@@ -196,7 +199,7 @@ const Dashboard: React.FC<DashboardProps> = ({ invoices, clients }) => {
                   <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{product.count} VENTES</span>
                 </div>
                 <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                  <div 
+                  <div
                     className={`h-full transition-all duration-1000 ${idx % 2 === 0 ? 'bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]' : 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]'}`}
                     style={{ width: `${(product.count / maxSales) * 100}%` }}
                   ></div>
@@ -214,31 +217,32 @@ const Dashboard: React.FC<DashboardProps> = ({ invoices, clients }) => {
   );
 };
 
-const MetricCard: React.FC<{title: string, value: number, icon: string, color: string, isCurrency?: boolean, theme?: string}> = ({title, value, icon, color, isCurrency = true, theme}) => {
+// Updated MetricCard to match the styling of other pages (InvoiceList, etc.)
+const MetricCard: React.FC<{ title: string, value: number, icon: string, color: string, isCurrency?: boolean }> = ({ title, value, icon, color, isCurrency = true }) => {
   const colorMap: Record<string, string> = {
-    indigo: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400',
-    emerald: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-    rose: 'bg-rose-500/10 text-rose-600 dark:text-rose-400',
-    blue: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
+    indigo: 'text-indigo-600 dark:text-indigo-400 bg-indigo-500/10',
+    emerald: 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10',
+    rose: 'text-rose-600 dark:text-rose-400 bg-rose-500/10',
+    blue: 'text-blue-600 dark:text-blue-400 bg-blue-500/10',
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 p-4 rounded-[15px] border border-slate-200 dark:border-white/5 shadow-sm group hover:-translate-y-1 hover:shadow-md transition-all duration-300">
-      <div className="flex items-center space-x-3">
-        <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${colorMap[color] || 'bg-slate-500/10 text-slate-600'}`}>
-          <i className={`fas ${icon} text-sm`}></i>
-        </div>
-        <div className="flex-1 min-w-0">
-          <h4 className="text-lg font-black text-slate-900 dark:text-white tracking-tight truncate">
-            {isCurrency ? value.toLocaleString() : value}
-            {isCurrency && <span className="text-[9px] ml-1 opacity-40 font-bold uppercase">MAD</span>}
-          </h4>
-        </div>
-      </div>
-      <div className="mt-2 pl-0.5">
-        <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-slate-400 dark:text-slate-500">
+    <div className="bg-white dark:bg-[#1b263b] p-6 rounded-[15px] border border-slate-200 dark:border-white/10 shadow-sm group hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/5 transition-all duration-300">
+      <div className="flex justify-between items-start mb-4">
+        <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em]">
           {title}
         </p>
+        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${colorMap[color] || 'bg-slate-500/10 text-slate-600'}`}>
+          <i className={`fas ${icon} text-xs`}></i>
+        </div>
+      </div>
+      <div className="flex items-baseline space-x-1">
+        <h4 className="text-2xl font-black text-slate-800 dark:text-white tracking-tighter">
+          {isCurrency ? value.toLocaleString() : value}
+        </h4>
+        {isCurrency && (
+          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">MAD</span>
+        )}
       </div>
     </div>
   );
