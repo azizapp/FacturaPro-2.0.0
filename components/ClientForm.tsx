@@ -20,7 +20,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialClient, onSubmit, onCanc
   // Direct initialization from initialClient if provided, otherwise defaults
   const [formData, setFormData] = useState<Client>(() => {
     if (initialClient) return { ...initialClient };
-    
+
     return {
       id: crypto.randomUUID(),
       name: '',
@@ -54,7 +54,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialClient, onSubmit, onCanc
       ...prev,
       [field]: value
     }));
-    
+
     if (field === 'user_email') {
       localStorage.setItem('user_email_preference', value);
     }
@@ -63,7 +63,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialClient, onSubmit, onCanc
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name.trim()) return alert('Le nom du client est requis.');
-    
+
     // Ensure we are passing the full object
     onSubmit(formData);
   };
@@ -80,8 +80,8 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialClient, onSubmit, onCanc
   return (
     <div className="max-w-5xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-6 duration-500">
       <div className="flex items-center space-x-4 mb-4">
-        <button 
-          onClick={onCancel} 
+        <button
+          onClick={onCancel}
           className="w-10 h-10 flex items-center justify-center rounded-full bg-white dark:bg-[#27354c] border border-slate-200 dark:border-white/10 text-slate-400 hover:text-indigo-600 hover:border-indigo-200 shadow-sm transition-all"
         >
           <i className="fas fa-arrow-left"></i>
@@ -119,15 +119,16 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialClient, onSubmit, onCanc
                   })}
                 </InputWrapper>
                 <InputWrapper label="Gamme / Type">
-                  <select 
+                  <select
                     value={formData.gamme}
                     onChange={(e) => handleInputChange('gamme', e.target.value)}
                     className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500/10 outline-none appearance-none dark:text-slate-200"
                   >
                     <option value="">Sélectionner...</option>
-                    <option value="Premium">Premium</option>
-                    <option value="Standard">Standard</option>
-                    <option value="Grossiste">Grossiste</option>
+                    <option value="Haute Gamme">Haute Gamme</option>
+                    <option value="Haute et Moyenne">Haute et Moyenne</option>
+                    <option value="Moyenne gamme">Moyenne gamme</option>
+                    <option value="Economie">Economie</option>
                   </select>
                 </InputWrapper>
               </div>
@@ -138,8 +139,8 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialClient, onSubmit, onCanc
                 })}
               </InputWrapper>
               <div className="flex items-center space-x-3 p-4 bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-slate-100 dark:border-white/5">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   id="is_blocked"
                   checked={formData.is_blocked}
                   onChange={(e) => handleInputChange('is_blocked', e.target.checked)}
@@ -220,15 +221,15 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialClient, onSubmit, onCanc
         </div>
 
         <div className="flex justify-end space-x-4">
-          <button 
-            type="button" 
-            onClick={onCancel} 
+          <button
+            type="button"
+            onClick={onCancel}
             className="px-8 py-4 text-[10px] font-bold uppercase text-slate-400"
           >
             Annuler
           </button>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="px-12 py-4 bg-indigo-600 text-white rounded-[12px] text-[10px] font-black uppercase shadow-xl"
           >
             {initialClient ? 'Mettre à jour' : 'Enregistrer le Client'}

@@ -13,6 +13,10 @@ const InvoicePDFPreview: React.FC<InvoicePDFPreviewProps> = ({ invoices, company
   const [isDownloading, setIsDownloading] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   const handleWhatsApp = async () => {
     if (invoices.length === 0) return;
     const element = document.querySelector('.printable-container');
@@ -79,7 +83,7 @@ const InvoicePDFPreview: React.FC<InvoicePDFPreviewProps> = ({ invoices, company
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md print:bg-white print:p-0 overflow-hidden print:overflow-visible font-sans text-slate-900">
       <div className="bg-white w-full max-w-6xl h-[95vh] rounded-[15px] shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 print:h-auto print:w-full print:shadow-none print:rounded-none print:static print:block relative">
-        
+
         {/* Barre d'outils */}
         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-white shrink-0 print:hidden relative z-20">
           <div className="flex items-center space-x-3">
@@ -95,6 +99,10 @@ const InvoicePDFPreview: React.FC<InvoicePDFPreviewProps> = ({ invoices, company
             <button type="button" onClick={handleWhatsApp} disabled={isSharing} className="px-4 py-2 bg-[#25D366] hover:bg-[#1ebd59] text-white rounded-lg font-black text-[10px] uppercase tracking-widest transition-all flex items-center disabled:opacity-50">
               <i className="fab fa-whatsapp mr-2"></i>
               Partager
+            </button>
+            <button type="button" onClick={handlePrint} className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg font-black text-[10px] uppercase tracking-widest transition-all flex items-center shadow-lg active:scale-95">
+              <i className="fas fa-print mr-2"></i>
+              Imprimer
             </button>
             <button type="button" onClick={handleDownload} disabled={isDownloading} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-black text-[10px] uppercase tracking-widest transition-all flex items-center disabled:opacity-50">
               <i className="fas fa-download mr-2"></i>
@@ -112,14 +120,14 @@ const InvoicePDFPreview: React.FC<InvoicePDFPreviewProps> = ({ invoices, company
             {invoices.map((invoice, index) => {
               const client = clients.find(c => c.id === invoice.clientId);
               const totalQty = invoice.items.reduce((sum, item) => sum + item.quantity, 0);
-              
+
               return (
-                <div 
-                  key={invoice.id} 
+                <div
+                  key={invoice.id}
                   className={`printable-sheet mx-auto bg-white p-[10mm] shadow-xl print:shadow-none print:p-[10mm] print:m-0 w-[210mm] h-[297mm] flex flex-col relative overflow-hidden ${index < invoices.length - 1 ? 'mb-8' : ''}`}
                   style={{ pageBreakAfter: 'always' }}
                 >
-                  
+
                   {/* Filigrane discret */}
                   <div className="absolute inset-0 flex items-center justify-center opacity-[0.02] pointer-events-none z-0">
                     {company.logo ? (
@@ -130,17 +138,17 @@ const InvoicePDFPreview: React.FC<InvoicePDFPreviewProps> = ({ invoices, company
                   </div>
 
                   <div className="relative z-10 flex flex-col h-full">
-                    
+
                     {/* Header: Logo (Even Bigger) & Client Box */}
                     <div className="flex justify-between items-start mb-6">
                       <div className="w-[220px]">
                         {company.logo ? (
                           <img src={company.logo} className="w-full object-contain" alt="Logo" />
                         ) : (
-                          <div className="text-2xl font-black text-[#1a2b5e] italic leading-tight">APOLLO<br/><span className="text-[10px] tracking-[0.4em] font-normal not-italic opacity-60 uppercase">Eyewear</span></div>
+                          <div className="text-2xl font-black text-[#1a2b5e] italic leading-tight">APOLLO<br /><span className="text-[10px] tracking-[0.4em] font-normal not-italic opacity-60 uppercase">Eyewear</span></div>
                         )}
                       </div>
-                      
+
                       <div className="w-[320px] border border-slate-200 rounded-[10px] p-4 text-[#1a2b5e] bg-slate-50/40">
                         <h2 className="text-sm font-black mb-1.5 uppercase tracking-wide">Client: {client?.name}</h2>
                         <div className="text-[12px] space-y-1 font-medium opacity-95 leading-tight">
@@ -188,20 +196,20 @@ const InvoicePDFPreview: React.FC<InvoicePDFPreviewProps> = ({ invoices, company
                     <div className="flex justify-between items-start pt-4 border-t-2 border-slate-100">
                       <div className="space-y-4 max-w-sm">
                         <div className="flex gap-6">
-                            <div>
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Qté Totale</p>
-                                <p className="text-sm font-black text-[#1a2b5e]">{totalQty}</p>
-                            </div>
-                            <div>
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Règlement</p>
-                                <p className="text-sm font-black text-[#1a2b5e]">Chèque / Virement</p>
-                            </div>
+                          <div>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Qté Totale</p>
+                            <p className="text-sm font-black text-[#1a2b5e]">{totalQty}</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Règlement</p>
+                            <p className="text-sm font-black text-[#1a2b5e]">Chèque / Virement</p>
+                          </div>
                         </div>
                         <div className="space-y-1">
                           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Remarques:</p>
                           <p className="text-[11px] text-slate-600 font-medium italic leading-relaxed">{invoice.notes || "Sans remarques particulières."}</p>
                         </div>
-                        
+
                         {/* Cacheط & Signature (Size Significantly Increased) */}
                         <div className="mt-4">
                           {company.signature ? (
@@ -220,10 +228,10 @@ const InvoicePDFPreview: React.FC<InvoicePDFPreviewProps> = ({ invoices, company
                               <td className="py-2 px-4 text-[12px] font-bold text-[#1a2b5e] bg-slate-50 border-b border-white text-right">{invoice.subtotal.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}</td>
                             </tr>
                             {invoice.discountAmount > 0 && (
-                            <tr>
-                              <td className="py-2 px-4 text-[12px] font-bold text-rose-600 bg-rose-50/40 border-b border-white">Remise</td>
-                              <td className="py-2 px-4 text-[12px] font-bold text-rose-600 bg-rose-50/40 border-b border-white text-right">-{invoice.discountAmount.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}</td>
-                            </tr>
+                              <tr>
+                                <td className="py-2 px-4 text-[12px] font-bold text-rose-600 bg-rose-50/40 border-b border-white">Remise</td>
+                                <td className="py-2 px-4 text-[12px] font-bold text-rose-600 bg-rose-50/40 border-b border-white text-right">-{invoice.discountAmount.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}</td>
+                              </tr>
                             )}
                             <tr>
                               <td className="py-2 px-4 text-[12px] font-bold text-[#1a2b5e] bg-slate-50 border-b border-white">TVA (20%)</td>
@@ -256,7 +264,8 @@ const InvoicePDFPreview: React.FC<InvoicePDFPreviewProps> = ({ invoices, company
         </div>
       </div>
 
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @media print {
           @page { size: A4; margin: 0; }
           body { margin: 0 !important; padding: 0 !important; background: white !important; }
