@@ -1,3 +1,5 @@
+/* eslint-disable */
+/* stylelint-disable */
 
 @tailwind base;
 @tailwind components;
@@ -9,21 +11,76 @@
     --font-inter: 'Inter', system-ui, -apple-system, sans-serif;
   }
 
+  * {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    height: 100%;
+  }
+
   body {
     font-family: var(--font-inter);
     @apply antialiased text-slate-900 bg-slate-50;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior: none;
+    height: 100%;
   }
 
   .dark body {
     @apply bg-slate-950 text-slate-100;
   }
+
+  /* iOS Safe Area Support */
+  @supports (padding-top: env(safe-area-inset-top)) {
+    .safe-area-top {
+      padding-top: env(safe-area-inset-top);
+    }
+    .safe-area-bottom {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+  }
+}
+
+/* iOS Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Touch Action Optimization */
+button, a, input, select, textarea {
+  touch-action: manipulation;
+}
+
+/* Prevent text selection on UI elements */
+.no-select {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Allow text selection on content */
+.allow-select {
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 /* Custom Scrollbars - Blue Color Style */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
+}
+
+/* iOS Scrollbar Styling */
+@supports (-webkit-touch-callout: none) {
+  ::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
+  }
 }
 
 ::-webkit-scrollbar-track {
