@@ -1,22 +1,9 @@
 /* eslint-disable */
 /* stylelint-disable */
 
-@import "tailwindcss";
-
-@theme {
-  --color-brand-50: #f5f7ff;
-  --color-brand-100: #ebf0fe;
-  --color-brand-200: #ced9fd;
-  --color-brand-300: #a1b8fb;
-  --color-brand-400: #6d8ef7;
-  --color-brand-500: #4f46e5;
-  --color-brand-600: #3c34d9;
-  --color-brand-700: #2d27c5;
-  --color-brand-800: #2620a3;
-  --color-brand-900: #1e1b85;
-  --color-slate-950: #020617;
-  --font-family-sans: 'Inter', system-ui, -apple-system, sans-serif;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @layer base {
   :root {
@@ -36,6 +23,7 @@
 
   body {
     font-family: var(--font-inter);
+    @apply antialiased text-slate-900 bg-slate-50;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -43,16 +31,8 @@
     height: 100%;
   }
 
-  /* Light mode (default) */
-  body {
-    background-color: #f8fafc;
-    color: #0f172a;
-  }
-
-  /* Dark mode */
   .dark body {
-    background-color: #020617;
-    color: #f1f5f9;
+    @apply bg-slate-950 text-slate-100;
   }
 
   /* iOS Safe Area Support */
@@ -104,31 +84,28 @@ button, a, input, select, textarea {
 }
 
 ::-webkit-scrollbar-track {
-  background-color: transparent;
+  @apply bg-transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(59, 130, 246, 0.5);
-  border-radius: 9999px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
+  @apply bg-blue-500/50 rounded-full transition-colors border-2 border-transparent bg-clip-padding;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: rgb(37, 99, 235);
+  @apply bg-blue-600;
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background-color: rgba(96, 165, 250, 0.3);
+  @apply bg-blue-400/30;
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(96, 165, 250, 0.5);
+  @apply bg-blue-400/50;
 }
 
 /* Custom Scrollbar class for containers */
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgba(59, 130, 246, 0.4);
+  @apply bg-blue-500/40;
 }
 
 /* Animation Utilities */
@@ -143,59 +120,20 @@ button, a, input, select, textarea {
 
 /* Component Enhancements */
 .card-premium {
-  background-color: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 15px;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  transition: all 0.3s;
-}
-
-.card-premium:hover {
-  box-shadow: 0 20px 25px -5px rgba(79, 70, 229, 0.05);
-  transform: translateY(-4px);
-}
-
-.dark .card-premium {
-  background-color: #0f172a;
-  border-color: rgba(255, 255, 255, 0.05);
+  @apply bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 rounded-[15px] shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/5 hover:-translate-y-1;
 }
 
 .glass-panel {
-  background-color: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 15px;
-}
-
-.dark .glass-panel {
-  background-color: rgba(15, 23, 42, 0.7);
-  border-color: rgba(255, 255, 255, 0.05);
+  @apply bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white/20 dark:border-white/5 rounded-[15px];
 }
 
 /* Table refinements */
 .table-modern thead th {
-  padding: 1rem 1.5rem;
-  font-size: 10px;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  color: #94a3b8;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.dark .table-modern thead th {
-  border-bottom-color: rgba(255, 255, 255, 0.05);
+  @apply py-4 px-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100 dark:border-white/5;
 }
 
 .table-modern tbody td {
-  padding: 1rem 1.5rem;
-  font-size: 12px;
-  font-weight: 500;
-  border-bottom: 1px solid #f8fafc;
-}
-
-.dark .table-modern tbody td {
-  border-bottom-color: rgba(255, 255, 255, 0.05);
+  @apply py-4 px-6 text-xs font-medium border-b border-slate-50 dark:border-white/5;
 }
 
 /* Button glow effect */
