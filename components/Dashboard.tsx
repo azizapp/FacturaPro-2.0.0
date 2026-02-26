@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Invoice, Client, InvoiceStatus } from '../types';
 import { summarizeInvoices } from '../services/geminiService';
@@ -14,6 +14,11 @@ const Dashboard: React.FC<DashboardProps> = ({ invoices, clients }) => {
   const { theme } = useAppContext();
   const [aiAnalysis, setAiAnalysis] = useState<any>(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const stats = useMemo(() => {
     const totalTtc = invoices.reduce((acc, inv) => acc + (inv.grandTotal || 0), 0);
@@ -102,30 +107,32 @@ const Dashboard: React.FC<DashboardProps> = ({ invoices, clients }) => {
             </h3>
           </div>
           <div className="flex-1 w-full" style={{ minHeight: '300px' }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={monthlyData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="colorAmt" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDark ? '#1e293b' : '#f1f5f9'} />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
-                <Tooltip
-                  contentStyle={{ 
-                    borderRadius: '15px', 
-                    border: 'none', 
-                    boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', 
-                    backgroundColor: isDark ? '#0f172a' : '#fff',
-                    padding: '12px'
-                  }}
-                  itemStyle={{ fontWeight: 'black', color: '#6366f1', fontSize: '12px' }}
-                />
-                <Area type="monotone" dataKey="amount" stroke="#6366f1" strokeWidth={3} fill="url(#colorAmt)" animationDuration={1500} />
-              </AreaChart>
-            </ResponsiveContainer>
+            {mounted && (
+              <ResponsiveContainer width="100%" height="100%" minHeight={300}>
+                <AreaChart data={monthlyData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorAmt" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.2} />
+                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDark ? '#1e293b' : '#f1f5f9'} />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10 }} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
+                  <Tooltip
+                    contentStyle={{ 
+                      borderRadius: '15px', 
+                      border: 'none', 
+                      boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', 
+                      backgroundColor: isDark ? '#0f172a' : '#fff',
+                      padding: '12px'
+                    }}
+                    itemStyle={{ fontWeight: 'black', color: '#6366f1', fontSize: '12px' }}
+                  />
+                  <Area type="monotone" dataKey="amount" stroke="#6366f1" strokeWidth={3} fill="url(#colorAmt)" animationDuration={1500} />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
 
