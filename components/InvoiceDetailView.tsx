@@ -173,7 +173,7 @@ const InvoiceDetailView: React.FC<InvoiceDetailViewProps> = ({
                   return (
                     <tr key={idx}>
                       <td className="py-5">
-                        <p className="font-bold text-slate-800 dark:text-white text-sm">{item.productName}</p>
+                        <p className="font-bold text-slate-800 dark:text-white text-sm">{item.productName || 'Article sans nom'}</p>
                       </td>
                       <td className="py-5 text-center font-bold text-slate-700 dark:text-slate-300">{item.quantity}</td>
                       <td className="py-5 text-right font-medium text-slate-500 dark:text-slate-400">{item.price.toLocaleString()} MAD</td>

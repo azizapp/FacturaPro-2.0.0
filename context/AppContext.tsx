@@ -46,7 +46,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     // Initialisation immédiate au montage
     useEffect(() => {
         const init = async () => {
-            // Charger le thème
+            // Charger le thème immédiatement (synchrone)
             const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
             if (savedTheme) {
                 setTheme(savedTheme);
@@ -55,22 +55,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
             // Charger les données du cache immédiatement pour un affichage instantané
             const cachedData = dataSyncService.getCachedData();
-            if (cachedData.invoices.length > 0 || cachedData.clients.length > 0 || cachedData.products.length > 0) {
-                setInvoices(cachedData.invoices);
-                setClients(cachedData.clients);
-                setProducts(cachedData.products);
-                if (cachedData.company) setCompany(cachedData.company);
-                // Si on a des données, on peut déjà arrêter l'affichage du spinner principal
-                setIsLoading(false);
-            }
+            setInvoices(cachedData.invoices);
+            setClients(cachedData.clients);
+            setProducts(cachedData.products);
+            if (cachedData.company) setCompany(cachedData.company);
+            // Afficher les données immédiatement sans attendre le serveur
+            setIsLoading(false);
 
-            // Vérifier la session Supabase existante
+            // Vérifier la session Supabase en arrière-plan
             const { data: { session } } = await supabase.auth.getSession();
             if (session?.user) {
                 setUser({ id: session.user.id, email: session.user.email! });
-                await refreshUserData(); // Sync fraîche avec le serveur
-            } else {
-                setIsLoading(false);
+                // Sync fraîche avec le serveur en arrière-plan (ne bloque pas l'UI)
+                refreshUserData().catch(console.error);
             }
         };
 
@@ -97,10 +94,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     };
 
     const refreshUserData = async () => {
-        // On n'affiche le loader que si on n'a absolument rien à afficher
-        if (invoices.length === 0 && clients.length === 0) {
-            setIsLoading(true);
-        }
+        // Ne jamais afficher le loader lors du refresh - on a déjà des données en cache
+        // Cela permet une expérience utilisateur fluide sans interruptions
         
         try {
             // Synchronisation en arrière-plan via le service de sync
@@ -120,9 +115,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             }
         } catch (error) {
             console.error("Erreur lors du rafraîchissement des données:", error);
-        } finally {
-            setIsLoading(false);
         }
+        // Pas de setIsLoading(false) ici - on garde l'UI réactive
     };
 
     const logout = async () => {
