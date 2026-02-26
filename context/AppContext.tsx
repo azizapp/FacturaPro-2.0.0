@@ -40,18 +40,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const [products, setProducts] = useState<Product[]>([]);
     const [company, setCompany] = useState<Company | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [theme, setTheme] = useState<'light' | 'dark'>('light');
+    const [theme, setTheme] = useState<'light' | 'dark'>('dark');
     const [user, setUser] = useState<User | null>(null);
 
     // Initialisation immédiate au montage
     useEffect(() => {
         const init = async () => {
-            // Charger le thème immédiatement (synchrone)
+            // Charger le thème immédiatement (synchrone) - الوضع الداكن افتراضي
             const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
-            if (savedTheme) {
-                setTheme(savedTheme);
-                document.documentElement.classList.toggle('dark', savedTheme === 'dark');
-            }
+            const themeToApply = savedTheme || 'dark'; // افتراضي: داكن
+            setTheme(themeToApply);
+            document.documentElement.classList.toggle('dark', themeToApply === 'dark');
 
             // Charger les données du cache immédiatement pour un affichage instantané
             const cachedData = dataSyncService.getCachedData();
