@@ -133,7 +133,20 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, company, i
           </div>
           
           <div className="relative md:col-span-1" ref={dropdownRef}>
-            <label className="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Client</label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-[10px] font-bold text-slate-400 uppercase">Client</label>
+              {onAddClient && (
+                <button
+                  type="button"
+                  onClick={onAddClient}
+                  className="text-[10px] font-bold text-indigo-600 hover:text-indigo-700 flex items-center space-x-1 transition-colors"
+                  title="Nouveau Compte Client"
+                >
+                  <i className="fas fa-plus-circle"></i>
+                  <span>Nouveau</span>
+                </button>
+              )}
+            </div>
             <div onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 rounded-[8px] px-4 py-3 cursor-pointer text-xs font-bold dark:text-white truncate">
               {selectedClient ? selectedClient.name : 'Chercher...'}
             </div>
