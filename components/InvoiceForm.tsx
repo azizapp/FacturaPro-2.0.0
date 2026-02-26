@@ -9,10 +9,11 @@ interface InvoiceFormProps {
   invoices: Invoice[];
   onSubmit: (invoice: Invoice) => void;
   onCancel: () => void;
+  onAddClient?: () => void;
   initialInvoice?: Invoice;
 }
 
-const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, company, invoices, onSubmit, onCancel, initialInvoice }) => {
+const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, company, invoices, onSubmit, onCancel, onAddClient, initialInvoice }) => {
   const [clientId, setClientId] = useState(initialInvoice?.clientId || '');
   const [clientSearch, setClientSearch] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -138,11 +139,27 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, company, i
             </div>
             {isDropdownOpen && (
               <div className="absolute z-50 mt-2 w-64 bg-white dark:bg-slate-800 rounded-[15px] shadow-2xl border border-slate-100 dark:border-white/10 overflow-hidden">
-                <div className="p-3 bg-slate-50 dark:bg-slate-900/50"><input type="text" value={clientSearch} onChange={(e) => setClientSearch(e.target.value)} className="w-full px-3 py-2 border rounded-[8px] text-xs outline-none dark:bg-slate-800 dark:text-white dark:border-white/5" /></div>
+                <div className="p-3 bg-slate-50 dark:bg-slate-900/50"><input type="text" value={clientSearch} onChange={(e) => setClientSearch(e.target.value)} className="w-full px-3 py-2 border rounded-[8px] text-xs outline-none dark:bg-slate-800 dark:text-white dark:border-white/5" placeholder="Rechercher un client..." /></div>
                 <div className="max-h-60 overflow-y-auto">
-                  {clients.filter(c => c.name.toLowerCase().includes(clientSearch.toLowerCase())).map(c => (
-                    <div key={c.id} onClick={() => { setClientId(c.id); setIsDropdownOpen(false); }} className="px-4 py-3 text-xs hover:bg-indigo-50 dark:hover:bg-indigo-500/10 cursor-pointer dark:text-slate-200">{c.name}</div>
-                  ))}
+                  {clients.filter(c => c.name.toLowerCase().includes(clientSearch.toLowerCase())).length > 0 ? (
+                    clients.filter(c => c.name.toLowerCase().includes(clientSearch.toLowerCase())).map(c => (
+                      <div key={c.id} onClick={() => { setClientId(c.id); setIsDropdownOpen(false); }} className="px-4 py-3 text-xs hover:bg-indigo-50 dark:hover:bg-indigo-500/10 cursor-pointer dark:text-slate-200">{c.name}</div>
+                    ))
+                  ) : (
+                    <div className="p-4 text-center">
+                      <p className="text-xs text-slate-400 mb-3">Aucun client trouvé</p>
+                      {onAddClient && (
+                        <button
+                          type="button"
+                          onClick={() => { setIsDropdownOpen(false); onAddClient(); }}
+                          className="w-full px-4 py-2 bg-indigo-600 text-white rounded-[8px] text-xs font-bold hover:bg-indigo-700 transition-all flex items-center justify-center space-x-2"
+                        >
+                          <i className="fas fa-plus"></i>
+                          <span>Nouveau Client</span>
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
