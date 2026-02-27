@@ -1,12 +1,23 @@
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-brand-50: #f5f7ff;
+  --color-brand-100: #ebf0fe;
+  --color-brand-200: #ced9fd;
+  --color-brand-300: #a1b8fb;
+  --color-brand-400: #6d8ef7;
+  --color-brand-500: #4f46e5;
+  --color-brand-600: #3c34d9;
+  --color-brand-700: #2d27c5;
+  --color-brand-800: #2620a3;
+  --color-brand-900: #1e1b85;
+  --font-inter: 'Inter', system-ui, -apple-system, sans-serif;
+}
 
 @layer base {
   :root {
     --brand-primary: #4f46e5;
-    --font-inter: 'Inter', system-ui, -apple-system, sans-serif;
   }
 
   body {
