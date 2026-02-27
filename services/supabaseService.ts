@@ -212,7 +212,7 @@ export const db = {
             items: (inv.invoice_items || []).map((item: any) => ({
                 id: item.id,
                 productId: item.product_id,
-                productName: item.productName,
+                productName: item.product_name || item.productName,
                 quantity: parseFloat(item.quantity),
                 price: parseFloat(item.price),
                 tvaRate: parseFloat(item.tva_rate),

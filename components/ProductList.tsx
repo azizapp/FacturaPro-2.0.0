@@ -43,7 +43,7 @@ const ProductList: React.FC<ProductListProps> = ({ products, onAddProduct, onEdi
         </button>
       </div>
 
-      <div className="bg-white dark:bg-[#27354c] rounded-[20px] shadow-xl border border-slate-200 dark:border-white/5 overflow-hidden flex flex-col h-[calc(100vh-250px)]">
+      <div className="bg-white dark:bg-[#27354c] rounded-[20px] shadow-xl border border-slate-200 dark:border-white/5 overflow-hidden flex flex-col min-h-[500px]">
         <div className="flex-1 overflow-auto custom-scrollbar relative">
           <table className="w-full text-left border-collapse min-w-[700px]">
             <thead className="sticky top-0 z-20 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-white/10 shadow-sm">

@@ -105,8 +105,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         }
         
         try {
+            // Load cached data first for immediate display
+            const cachedData = dataSyncService.getCachedData();
+            if (cachedData.invoices.length > 0) setInvoices(cachedData.invoices);
+            if (cachedData.clients.length > 0) setClients(cachedData.clients);
+            if (cachedData.products.length > 0) setProducts(cachedData.products);
+            if (cachedData.company) setCompany(cachedData.company);
+
             // Synchronisation en arrière-plan via le service de sync
-            const freshData = await dataSyncService.initializeWithCache();
+            await dataSyncService.manualSync();
+            const freshData = dataSyncService.getCachedData();
+            
             setInvoices(freshData.invoices);
             setClients(freshData.clients);
             setProducts(freshData.products);
