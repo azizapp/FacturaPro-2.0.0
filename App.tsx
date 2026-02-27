@@ -18,7 +18,7 @@ import DeleteConfirmationModal from './components/DeleteConfirmationModal';
 import Login from './components/Login';
 import { useAppContext } from './context/AppContext';
 import { InvoiceStatus } from './types';
-
+// هذا تعليق سطر واحد
 const App: React.FC = () => {
   const {
     invoices, clients, products, company, isLoading, theme, user, toggleTheme, logout, refreshUserData,

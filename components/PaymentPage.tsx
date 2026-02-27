@@ -273,7 +273,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ invoices, clients, onPaymentA
                   </select>
                 </div>
               </div>
-              
+              // هذا تعليق سطر واحد
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Notes / Référence</label>
                 <input 

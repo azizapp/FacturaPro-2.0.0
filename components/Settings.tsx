@@ -27,7 +27,7 @@ const Settings: React.FC<SettingsProps> = ({ company, onUpdate }) => {
       reader.readAsDataURL(file);
     }
   };
-
+// هذا تعليق سطر واحد
   return (
     <div className="max-w-5xl space-y-8 animate-in fade-in duration-500 pb-20">
       <h3 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight uppercase">Configuration</h3>

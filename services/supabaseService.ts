@@ -328,7 +328,7 @@ export const db = {
         if (payError) throw payError;
         await db.recalculateInvoiceStatus(invoiceId);
     },
-
+     // هذا تعليق سطر واحد
     deletePayment: async (invoiceId: string, paymentId: string) => {
         const { error: payError } = await supabase
             .from('payments')

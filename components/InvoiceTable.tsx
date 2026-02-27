@@ -148,7 +148,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
   };
 
   return (
-    <div className="bg-white dark:bg-[#27354c] rounded-[20px] shadow-xl overflow-hidden border border-slate-200 dark:border-white/5 flex flex-col min-h-[500px]">
+    <div className="bg-white dark:bg-[#27354c] rounded-[20px] shadow-xl overflow-hidden border border-slate-200 dark:border-white/5 flex flex-col">
       
       {/* Search & Filters Toolbar */}
       <div className="p-4 border-b border-slate-100 dark:border-white/5 bg-slate-50/30 dark:bg-slate-900/40 flex flex-wrap items-center justify-between gap-4 shrink-0">
