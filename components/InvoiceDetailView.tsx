@@ -173,7 +173,7 @@ const InvoiceDetailView: React.FC<InvoiceDetailViewProps> = ({
                   return (
                     <tr key={idx}>
                       <td className="py-5">
-                        <p className="font-bold text-slate-800 dark:text-white text-sm">{item.productName || 'Article sans nom'}</p>
+                        <p className="font-bold text-slate-800 dark:text-white text-sm">{item.productName}</p>
                       </td>
                       <td className="py-5 text-center font-bold text-slate-700 dark:text-slate-300">{item.quantity}</td>
                       <td className="py-5 text-right font-medium text-slate-500 dark:text-slate-400">{item.price.toLocaleString()} MAD</td>
@@ -226,35 +226,35 @@ const InvoiceDetailView: React.FC<InvoiceDetailViewProps> = ({
             </div>
           </div>
 
-          <div className="bg-white dark:bg-[#1b263b] rounded-[15px] p-10 shadow-xl border border-slate-200 dark:border-white/5">
+          <div className="bg-[#1b263b] rounded-[15px] p-10 shadow-xl border border-white/5">
             <div className="flex items-center space-x-3 mb-8">
               <div className="w-8 h-8 rounded-[8px] bg-emerald-500 flex items-center justify-center text-white">
                 <i className="fas fa-history text-xs"></i>
               </div>
-              <h4 className="text-slate-800 dark:text-white font-bold uppercase tracking-widest text-sm">Séquence des Règlements</h4>
+              <h4 className="text-white font-bold uppercase tracking-widest text-sm">Séquence des Règlements</h4>
             </div>
 
             {invoice.payments && invoice.payments.length > 0 ? (
               <div className="space-y-4">
                 {invoice.payments.map((p, idx) => (
-                  <div key={p.id} className="bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-[12px] p-4 flex items-center justify-between group hover:bg-slate-100 dark:hover:bg-white/10 transition-all">
+                  <div key={p.id} className="bg-white/5 border border-white/10 rounded-[12px] p-4 flex items-center justify-between group hover:bg-white/10 transition-all">
                     <div className="flex items-center space-x-4">
-                      <div className="w-10 h-10 rounded-[10px] bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold text-xs italic">
+                      <div className="w-10 h-10 rounded-[10px] bg-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold text-xs italic">
                         #{idx + 1}
                       </div>
                       <div>
-                        <p className="text-slate-800 dark:text-white font-bold text-sm">{p.note || 'Encaissement'}</p>
+                        <p className="text-white font-bold text-sm">{p.note || 'Encaissement'}</p>
                         <p className="text-[10px] text-slate-500 uppercase font-medium">{new Date(p.date).toLocaleDateString('fr-FR')} • {p.method}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-emerald-600 dark:text-emerald-400 font-black text-sm">+{p.amount.toLocaleString()} MAD</p>
+                      <p className="text-emerald-400 font-black text-sm">+{p.amount.toLocaleString()} MAD</p>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="py-10 text-center border-2 border-dashed border-slate-200 dark:border-white/5 rounded-[12px]">
+              <div className="py-10 text-center border-2 border-dashed border-white/5 rounded-[12px]">
                 <p className="text-slate-500 italic text-sm">Aucun règlement enregistré.</p>
               </div>
             )}

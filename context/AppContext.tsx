@@ -27,6 +27,8 @@ interface AppContextType {
     updateClient: (client: Client) => void;
     deleteClient: (id: string) => void;
     addProduct: (product: Product) => void;
+    updateProduct: (product: Product) => void;
+    deleteProduct: (id: string) => void;
     updateCompany: (company: Company) => void;
     addPayment: (invoiceId: string, payment: Payment) => void;
     deletePayment: (invoiceId: string, paymentId: string) => void;
@@ -46,7 +48,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     // Initialisation immédiate au montage
     useEffect(() => {
         const init = async () => {
-            // Charger le thème immédiatement (synchrone)
+            // Charger le thème
             const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
             if (savedTheme) {
                 setTheme(savedTheme);
@@ -55,19 +57,22 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
             // Charger les données du cache immédiatement pour un affichage instantané
             const cachedData = dataSyncService.getCachedData();
-            setInvoices(cachedData.invoices);
-            setClients(cachedData.clients);
-            setProducts(cachedData.products);
-            if (cachedData.company) setCompany(cachedData.company);
-            // Afficher les données immédiatement sans attendre le serveur
-            setIsLoading(false);
+            if (cachedData.invoices.length > 0 || cachedData.clients.length > 0 || cachedData.products.length > 0) {
+                setInvoices(cachedData.invoices);
+                setClients(cachedData.clients);
+                setProducts(cachedData.products);
+                if (cachedData.company) setCompany(cachedData.company);
+                // Si on a des données, on peut déjà arrêter l'affichage du spinner principal
+                setIsLoading(false);
+            }
 
-            // Vérifier la session Supabase en arrière-plan
+            // Vérifier la session Supabase existante
             const { data: { session } } = await supabase.auth.getSession();
             if (session?.user) {
                 setUser({ id: session.user.id, email: session.user.email! });
-                // Sync fraîche avec le serveur en arrière-plan (ne bloque pas l'UI)
-                refreshUserData().catch(console.error);
+                await refreshUserData(); // Sync fraîche avec le serveur
+            } else {
+                setIsLoading(false);
             }
         };
 
@@ -94,8 +99,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     };
 
     const refreshUserData = async () => {
-        // Ne jamais afficher le loader lors du refresh - on a déjà des données en cache
-        // Cela permet une expérience utilisateur fluide sans interruptions
+        // On n'affiche le loader que si on n'a absolument rien à afficher
+        if (invoices.length === 0 && clients.length === 0) {
+            setIsLoading(true);
+        }
         
         try {
             // Synchronisation en arrière-plan via le service de sync
@@ -115,8 +122,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             }
         } catch (error) {
             console.error("Erreur lors du rafraîchissement des données:", error);
+        } finally {
+            setIsLoading(false);
         }
-        // Pas de setIsLoading(false) ici - on garde l'UI réactive
     };
 
     const logout = async () => {
@@ -163,6 +171,18 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         setProducts(prev => [...prev, product]);
         db.addProduct(product).catch(e => console.error("Erreur de synchro produit:", e));
         dataSyncService.addProduct(product);
+    };
+
+    const updateProduct = (product: Product) => {
+        setProducts(prev => prev.map(p => p.id === product.id ? product : p));
+        db.updateProduct(product).catch(e => console.error("Erreur de mise à jour produit:", e));
+        dataSyncService.updateProducts([...products.filter(p => p.id !== product.id), product]);
+    };
+
+    const deleteProduct = (id: string) => {
+        setProducts(prev => prev.filter(p => p.id !== id));
+        db.deleteProduct(id).catch(e => console.error("Erreur de suppression produit:", e));
+        dataSyncService.deleteProduct(id);
     };
 
     const updateCompany = (newCompany: Company) => {
@@ -217,7 +237,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             setInvoices, setClients, setProducts, setCompany,
             addInvoice, updateInvoice, deleteInvoice,
             addClient, updateClient, deleteClient,
-            addProduct, updateCompany, addPayment, deletePayment
+            addProduct, updateProduct, deleteProduct, updateCompany, addPayment, deletePayment
         }}>
             {children}
         </AppContext.Provider>

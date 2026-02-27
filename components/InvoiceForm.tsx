@@ -9,11 +9,10 @@ interface InvoiceFormProps {
   invoices: Invoice[];
   onSubmit: (invoice: Invoice) => void;
   onCancel: () => void;
-  onAddClient?: () => void;
   initialInvoice?: Invoice;
 }
 
-const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, company, invoices, onSubmit, onCancel, onAddClient, initialInvoice }) => {
+const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, company, invoices, onSubmit, onCancel, initialInvoice }) => {
   const [clientId, setClientId] = useState(initialInvoice?.clientId || '');
   const [clientSearch, setClientSearch] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -133,46 +132,17 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, company, i
           </div>
           
           <div className="relative md:col-span-1" ref={dropdownRef}>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-[10px] font-bold text-slate-400 uppercase">Client</label>
-              {onAddClient && (
-                <button
-                  type="button"
-                  onClick={onAddClient}
-                  className="text-[10px] font-bold text-indigo-600 hover:text-indigo-700 flex items-center space-x-1 transition-colors"
-                  title="Nouveau Compte Client"
-                >
-                  <i className="fas fa-plus-circle"></i>
-                  <span>Nouveau</span>
-                </button>
-              )}
-            </div>
+            <label className="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Client</label>
             <div onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 rounded-[8px] px-4 py-3 cursor-pointer text-xs font-bold dark:text-white truncate">
               {selectedClient ? selectedClient.name : 'Chercher...'}
             </div>
             {isDropdownOpen && (
               <div className="absolute z-50 mt-2 w-64 bg-white dark:bg-slate-800 rounded-[15px] shadow-2xl border border-slate-100 dark:border-white/10 overflow-hidden">
-                <div className="p-3 bg-slate-50 dark:bg-slate-900/50"><input type="text" value={clientSearch} onChange={(e) => setClientSearch(e.target.value)} className="w-full px-3 py-2 border rounded-[8px] text-xs outline-none dark:bg-slate-800 dark:text-white dark:border-white/5" placeholder="Rechercher un client..." /></div>
+                <div className="p-3 bg-slate-50 dark:bg-slate-900/50"><input type="text" value={clientSearch} onChange={(e) => setClientSearch(e.target.value)} className="w-full px-3 py-2 border rounded-[8px] text-xs outline-none dark:bg-slate-800 dark:text-white dark:border-white/5" /></div>
                 <div className="max-h-60 overflow-y-auto">
-                  {clients.filter(c => c.name.toLowerCase().includes(clientSearch.toLowerCase())).length > 0 ? (
-                    clients.filter(c => c.name.toLowerCase().includes(clientSearch.toLowerCase())).map(c => (
-                      <div key={c.id} onClick={() => { setClientId(c.id); setIsDropdownOpen(false); }} className="px-4 py-3 text-xs hover:bg-indigo-50 dark:hover:bg-indigo-500/10 cursor-pointer dark:text-slate-200">{c.name}</div>
-                    ))
-                  ) : (
-                    <div className="p-4 text-center">
-                      <p className="text-xs text-slate-400 mb-3">Aucun client trouvé</p>
-                      {onAddClient && (
-                        <button
-                          type="button"
-                          onClick={() => { setIsDropdownOpen(false); onAddClient(); }}
-                          className="w-full px-4 py-2 bg-indigo-600 text-white rounded-[8px] text-xs font-bold hover:bg-indigo-700 transition-all flex items-center justify-center space-x-2"
-                        >
-                          <i className="fas fa-plus"></i>
-                          <span>Nouveau Client</span>
-                        </button>
-                      )}
-                    </div>
-                  )}
+                  {clients.filter(c => c.name.toLowerCase().includes(clientSearch.toLowerCase())).map(c => (
+                    <div key={c.id} onClick={() => { setClientId(c.id); setIsDropdownOpen(false); }} className="px-4 py-3 text-xs hover:bg-indigo-50 dark:hover:bg-indigo-500/10 cursor-pointer dark:text-slate-200">{c.name}</div>
+                  ))}
                 </div>
               </div>
             )}
@@ -180,22 +150,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, company, i
 
           <div><label className="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Date</label><input type="date" value={invoiceDate} onChange={(e) => setInvoiceDate(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 rounded-[8px] px-4 py-3 text-xs font-bold dark:text-white" /></div>
           <div><label className="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Échéance</label><input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 rounded-[8px] px-4 py-3 text-xs font-bold dark:text-white" /></div>
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-[10px] font-bold text-slate-400 uppercase">BC</label>
-              {onAddClient && (
-                <button
-                  type="button"
-                  onClick={onAddClient}
-                  className="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center hover:bg-indigo-700 transition-colors"
-                  title="Nouveau Compte Client"
-                >
-                  <i className="fas fa-plus text-[10px]"></i>
-                </button>
-              )}
-            </div>
-            <input type="text" value={poNumber} onChange={(e) => setPoNumber(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 rounded-[8px] px-4 py-3 text-xs font-bold dark:text-white" placeholder="N° Commande" />
-          </div>
+          <div><label className="text-[10px] font-bold text-slate-400 uppercase mb-2 block">BC</label><input type="text" value={poNumber} onChange={(e) => setPoNumber(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 rounded-[8px] px-4 py-3 text-xs font-bold dark:text-white" placeholder="N° Commande" /></div>
         </div>
 
         <div className="space-y-4 mb-12">

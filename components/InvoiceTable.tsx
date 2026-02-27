@@ -148,7 +148,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
   };
 
   return (
-    <div className="bg-white dark:bg-[#27354c] rounded-[20px] shadow-xl overflow-hidden border border-slate-200 dark:border-white/5 flex flex-col h-[calc(100vh-250px)] min-h-[500px]">
+    <div className="bg-white dark:bg-[#27354c] rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 overflow-hidden flex flex-col h-[calc(100vh-250px)] min-h-[500px]">
       
       {/* Search & Filters Toolbar */}
       <div className="p-4 border-b border-slate-100 dark:border-white/5 bg-slate-50/30 dark:bg-slate-900/40 flex flex-wrap items-center justify-between gap-4 shrink-0">
@@ -233,46 +233,46 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
       )}
 
       {/* Table Container with Internal Scroll */}
-      <div className="flex-1 overflow-auto custom-scrollbar relative">
+      <div className="flex-1 overflow-x-auto custom-scrollbar relative">
         <table className="w-full text-left border-collapse min-w-[900px]">
-          <thead className="sticky top-0 z-30 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-white/10 shadow-sm">
+          <thead className="bg-slate-50 dark:bg-slate-900/40 border-b border-slate-100 dark:border-white/5">
             <tr>
-              <th className="w-[12%] px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-widest cursor-pointer group" onClick={() => handleSort('date')}>
+              <th className="w-[12%] px-6 py-5 text-[10px] font-bold uppercase text-slate-400 cursor-pointer group" onClick={() => handleSort('date')}>
                 <div className="flex items-center space-x-2">
                   <span>Date</span>
                   <i className={`fas ${sortField === 'date' ? (sortDirection === 'asc' ? 'fa-sort-up' : 'fa-sort-down') : 'fa-sort opacity-0 group-hover:opacity-40'} transition-opacity`}></i>
                 </div>
               </th>
-              <th className="w-[14%] px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-widest cursor-pointer group" onClick={() => handleSort('number')}>
+              <th className="w-[14%] px-6 py-5 text-[10px] font-bold uppercase text-slate-400 cursor-pointer group" onClick={() => handleSort('number')}>
                 <div className="flex items-center space-x-2">
                   <span>Numéro</span>
                   <i className={`fas ${sortField === 'number' ? (sortDirection === 'asc' ? 'fa-sort-up' : 'fa-sort-down') : 'fa-sort opacity-0 group-hover:opacity-40'} transition-opacity`}></i>
                 </div>
               </th>
-              <th className="w-[28%] px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-widest cursor-pointer group" onClick={() => handleSort('client')}>
+              <th className="w-[28%] px-6 py-5 text-[10px] font-bold uppercase text-slate-400 cursor-pointer group" onClick={() => handleSort('client')}>
                 <div className="flex items-center space-x-2">
                   <span>Client</span>
                   <i className={`fas ${sortField === 'client' ? (sortDirection === 'asc' ? 'fa-sort-up' : 'fa-sort-down') : 'fa-sort opacity-0 group-hover:opacity-40'} transition-opacity`}></i>
                 </div>
               </th>
-              <th className="w-[12%] px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-widest cursor-pointer group" onClick={() => handleSort('status')}>
+              <th className="w-[12%] px-6 py-5 text-[10px] font-bold uppercase text-slate-400 cursor-pointer group" onClick={() => handleSort('status')}>
                 <div className="flex items-center space-x-2">
                   <span>Statut</span>
                   <i className={`fas ${sortField === 'status' ? (sortDirection === 'asc' ? 'fa-sort-up' : 'fa-sort-down') : 'fa-sort opacity-0 group-hover:opacity-40'} transition-opacity`}></i>
                 </div>
               </th>
-              <th className="w-[14%] px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-widest text-right cursor-pointer group" onClick={() => handleSort('total')}>
+              <th className="w-[14%] px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-right cursor-pointer group" onClick={() => handleSort('total')}>
                 <div className="flex items-center justify-end space-x-2">
                   <span>Total TTC</span>
                   <i className={`fas ${sortField === 'total' ? (sortDirection === 'asc' ? 'fa-sort-up' : 'fa-sort-down') : 'fa-sort opacity-0 group-hover:opacity-40'} transition-opacity`}></i>
                 </div>
               </th>
-              <th className="w-[20%] px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-widest text-center">Actions</th>
+              <th className="w-[20%] px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-center">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+          <tbody className="divide-y divide-slate-50 dark:divide-white/5">
             {paginatedInvoices.length > 0 ? paginatedInvoices.map((invoice) => (
-              <tr key={invoice.id} className="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors group">
+              <tr key={invoice.id} className="hover:bg-slate-50/30 dark:hover:bg-white/5 transition-colors group">
                 <td className="px-6 py-4 text-xs font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">
                   {new Date(invoice.date).toLocaleDateString('fr-FR')}
                 </td>

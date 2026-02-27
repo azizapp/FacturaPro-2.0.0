@@ -5,9 +5,11 @@ import { Product } from '../types';
 interface ProductListProps {
   products: Product[];
   onAddProduct: () => void;
+  onEditProduct: (id: string) => void;
+  onDeleteProduct: (id: string) => void;
 }
 
-const ProductList: React.FC<ProductListProps> = ({ products, onAddProduct }) => {
+const ProductList: React.FC<ProductListProps> = ({ products, onAddProduct, onEditProduct, onDeleteProduct }) => {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex justify-between items-center">
@@ -64,10 +66,10 @@ const ProductList: React.FC<ProductListProps> = ({ products, onAddProduct }) => 
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-center space-x-1">
-                      <button className="w-8 h-8 rounded-lg text-slate-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 hover:text-indigo-600 transition-all">
+                      <button onClick={() => onEditProduct(product.id)} className="w-8 h-8 rounded-lg text-slate-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 hover:text-indigo-600 transition-all">
                         <i className="fas fa-edit text-xs"></i>
                       </button>
-                      <button className="w-8 h-8 rounded-lg text-slate-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 hover:text-rose-600 transition-all">
+                      <button onClick={() => onDeleteProduct(product.id)} className="w-8 h-8 rounded-lg text-slate-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 hover:text-rose-600 transition-all">
                         <i className="fas fa-trash-alt text-xs"></i>
                       </button>
                     </div>

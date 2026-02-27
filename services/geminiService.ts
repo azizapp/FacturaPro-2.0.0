@@ -2,29 +2,10 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { Invoice, Client, InvoiceStatus } from "../types";
 
-// Get API key from environment or return null if not set
-const getApiKey = (): string | null => {
-  try {
-    // @ts-ignore
-    if (typeof import.meta !== 'undefined' && import.meta.env) {
-      // @ts-ignore
-      return import.meta.env.VITE_GEMINI_API_KEY || null;
-    }
-  } catch {
-    // Fallback if import.meta is not available
-  }
-  return null;
-};
-
-// Initialize AI client only if API key is available
-const apiKey = getApiKey();
-const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
+// Always use const ai = new GoogleGenAI({apiKey: process.env.API_KEY});
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const generateFollowUpEmail = async (invoice: Invoice, clientData: Client): Promise<string> => {
-  if (!ai) {
-    console.warn("Gemini API key not configured. Using fallback email generation.");
-    return `Bonjour ${clientData.name},\n\nNous vous rappelons que la facture n°${invoice.number} d'un montant de ${invoice.grandTotal.toFixed(2)} MAD est en attente de règlement.\n\nNous vous remercions de bien vouloir procéder au paiement dans les meilleurs délais.\n\nCordialement,`;
-  }
   const prompt = `Génère un email professionnel de relance pour la facture suivante :
   Numéro de facture : ${invoice.number}
   Client : ${clientData.name}
@@ -53,21 +34,6 @@ export const summarizeInvoices = async (invoices: Invoice[]): Promise<any> => {
   const totalTva = invoices.reduce((sum, inv) => sum + (inv.tvaTotal || 0), 0);
   const paidCount = invoices.filter(i => i.status === InvoiceStatus.PAID).length;
   const pendingCount = invoices.filter(i => i.status === InvoiceStatus.SENT || i.status === InvoiceStatus.PARTIAL).length;
-
-  if (!ai) {
-    console.warn("Gemini API key not configured. Using fallback summary.");
-    return {
-      summary: `Bilan financier: CA TTC de ${total.toLocaleString()} MAD avec ${paidCount} factures payées et ${pendingCount} en cours.`,
-      insights: [
-        `Chiffre d'affaires HT: ${totalHt.toLocaleString()} MAD`,
-        `TVA à reverser: ${totalTva.toLocaleString()} MAD`,
-        `Taux de recouvrement: ${invoices.length > 0 ? Math.round((paidCount / invoices.length) * 100) : 0}%`
-      ],
-      recommendation: pendingCount > 0 
-        ? "Relancez les factures en cours de paiement pour améliorer votre trésorerie."
-        : "Votre situation financière est saine. Poursuivez sur cette lancée."
-    };
-  }
 
   const prompt = `En tant qu'expert comptable marocain, analyse ce bilan de facturation :
   - CA Total TTC : ${total.toLocaleString()} MAD

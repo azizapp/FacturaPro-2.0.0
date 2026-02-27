@@ -23,7 +23,7 @@ const App: React.FC = () => {
   const {
     invoices, clients, products, company, isLoading, theme, user, toggleTheme, logout, refreshUserData,
     addInvoice, updateInvoice, deleteInvoice, addClient, updateClient, deleteClient,
-    addProduct, updateCompany, addPayment, deletePayment
+    addProduct, updateProduct, deleteProduct, updateCompany, addPayment, deletePayment
   } = useAppContext();
 
   const [activeView, setActiveView] = useState<'dashboard' | 'invoices' | 'ledger' | 'clients' | 'products' | 'payments' | 'settings' | 'invoice-detail' | 'client-form' | 'invoice-form' | 'product-form'>('dashboard');
@@ -36,7 +36,7 @@ const App: React.FC = () => {
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [showPaymentModal, setShowPaymentModal] = useState<string | null>(null);
 
-  const [itemToDelete, setItemToDelete] = useState<{ id: string, type: 'invoice' | 'client' | 'payment', invoiceId?: string } | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<{ id: string, type: 'invoice' | 'client' | 'payment' | 'product', invoiceId?: string } | null>(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -57,6 +57,8 @@ const App: React.FC = () => {
       if (selectedInvoiceId === id && activeView === 'invoice-detail') setActiveView('invoices');
     } else if (type === 'client') {
       deleteClient(id);
+    } else if (type === 'product') {
+      deleteProduct(id);
     } else if (type === 'payment' && invoiceId) {
       deletePayment(invoiceId, id);
     }
@@ -101,7 +103,7 @@ const App: React.FC = () => {
           onDeletePayment={(invId, payId) => setItemToDelete({ id: payId, type: 'payment', invoiceId: invId })}
         />;
       case 'clients': return <ClientList clients={clients} invoices={invoices} onAddClient={() => { setSelectedClientId(null); setActiveView('client-form'); }} onEditClient={(id) => { setSelectedClientId(id); setActiveView('client-form'); }} onDeleteClient={(id) => setItemToDelete({ id, type: 'client' })} onViewHistory={(id) => { setSelectedClientId(id); setActiveView('ledger'); }} />;
-      case 'products': return <ProductList products={products} onAddProduct={() => { setSelectedProductId(null); setActiveView('product-form'); }} />;
+      case 'products': return <ProductList products={products} onAddProduct={() => { setSelectedProductId(null); setActiveView('product-form'); }} onEditProduct={(id) => { setSelectedProductId(id); setActiveView('product-form'); }} onDeleteProduct={(id) => setItemToDelete({ id, type: 'product' })} />;
       case 'payments': return <PaymentPage invoices={invoices} clients={clients} onPaymentAdded={addPayment} />;
       case 'settings': return <Settings company={company} onUpdate={updateCompany} />;
       case 'invoice-detail':
@@ -134,15 +136,16 @@ const App: React.FC = () => {
               else addInvoice(invoice);
               setActiveView('invoices');
             }} 
-            onCancel={() => setActiveView('invoices')}
-            onAddClient={() => { setSelectedClientId(null); setActiveView('client-form'); }}
+            onCancel={() => setActiveView('invoices')} 
           />
         );
       case 'product-form': 
         return (
           <ProductForm 
+            initialProduct={products.find(p => p.id === selectedProductId)}
             onSubmit={(product) => {
-              addProduct(product);
+              if (selectedProductId) updateProduct(product);
+              else addProduct(product);
               setActiveView('products');
             }} 
             onCancel={() => setActiveView('products')} 
@@ -201,7 +204,7 @@ const App: React.FC = () => {
       {showPaymentModal && <PaymentModal invoice={invoices.find(i => i.id === showPaymentModal)!} onClose={() => setShowPaymentModal(null)} onPaymentAdded={addPayment} />}
       <DeleteConfirmationModal
         isOpen={!!itemToDelete}
-        title={itemToDelete?.type === 'payment' ? 'Supprimer le Règlement' : (itemToDelete?.type === 'invoice' ? 'Supprimer la Facture' : 'Supprimer le Client')}
+        title={itemToDelete?.type === 'payment' ? 'Supprimer le Règlement' : (itemToDelete?.type === 'invoice' ? 'Supprimer la Facture' : (itemToDelete?.type === 'product' ? 'Supprimer le Produit' : 'Supprimer le Client'))}
         message="Cette action est irréversible."
         onConfirm={handleConfirmDelete}
         onCancel={() => setItemToDelete(null)}

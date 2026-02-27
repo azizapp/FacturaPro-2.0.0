@@ -3,18 +3,19 @@ import React, { useState } from 'react';
 import { Product } from '../types';
 
 interface ProductFormProps {
+  initialProduct?: Product;
   onSubmit: (product: Product) => void;
   onCancel: () => void;
 }
 
-const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, onCancel }) => {
+const ProductForm: React.FC<ProductFormProps> = ({ initialProduct, onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
-    name: '',
+    name: initialProduct?.name || '',
     reference: '',
     category: 'Montures',
-    description: '',
-    price: 0,
-    unit: 'Unité',
+    description: initialProduct?.description || '',
+    price: initialProduct?.price || 0,
+    unit: initialProduct?.unit || 'Unité',
     tvaRate: 20
   });
 
@@ -23,7 +24,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, onCancel }) => {
     if (!formData.name) return alert('Le nom du produit est requis.');
 
     const newProduct: Product = {
-      id: crypto.randomUUID(),
+      id: initialProduct?.id || crypto.randomUUID(),
       name: formData.name,
       description: formData.description,
       price: formData.price,

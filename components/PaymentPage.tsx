@@ -51,7 +51,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ invoices, clients, onPaymentA
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="bg-white dark:bg-[#27354c] rounded-[20px] shadow-xl border border-slate-200 dark:border-white/5 overflow-hidden flex flex-col h-[calc(100vh-250px)]">
+      <div className="bg-white dark:bg-[#27354c] rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 overflow-hidden flex flex-col h-[calc(100vh-250px)]">
         <div className="p-4 border-b border-slate-100 dark:border-white/5 bg-slate-50/30 dark:bg-slate-900/40 space-y-4 shrink-0">
           <div className="flex justify-between items-center">
              <h3 className="text-xl font-black text-slate-800 dark:text-white uppercase tracking-tight">Gestion des Encaissements</h3>
@@ -72,24 +72,24 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ invoices, clients, onPaymentA
           </div>
         </div>
 
-        <div className="flex-1 overflow-auto custom-scrollbar relative">
+        <div className="flex-1 overflow-x-auto custom-scrollbar relative">
           <table className="w-full text-left border-collapse min-w-[800px]">
-            <thead className="sticky top-0 z-20 bg-slate-50 dark:bg-slate-900 border-b border-slate-100 dark:border-white/10 shadow-sm">
+            <thead className="bg-slate-50 dark:bg-slate-900/40 border-b border-slate-100 dark:border-white/5">
               <tr>
-                <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] w-[15%]">Facture</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] w-[25%]">Client</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] text-right w-[15%]">Total TTC</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] text-right w-[15%]">Déjà Payé</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] text-right w-[15%]">Reste</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] text-center w-[15%]">Action</th>
+                <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 w-[15%]">Facture</th>
+                <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 w-[25%]">Client</th>
+                <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-right w-[15%]">Total TTC</th>
+                <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-right w-[15%]">Déjà Payé</th>
+                <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-right w-[15%]">Reste</th>
+                <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-center w-[15%]">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+            <tbody className="divide-y divide-slate-50 dark:divide-white/5">
               {pendingInvoices.length > 0 ? pendingInvoices.map((invoice) => {
                 const paid = calculatePaid(invoice);
                 const remaining = calculateRemaining(invoice);
                 return (
-                  <tr key={invoice.id} className="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors group">
+                  <tr key={invoice.id} className="hover:bg-slate-50/30 dark:hover:bg-white/5 transition-colors group">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="text-[11px] font-black text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 px-2.5 py-1.5 rounded-lg border border-indigo-100 dark:border-indigo-500/10">
                         {invoice.number}

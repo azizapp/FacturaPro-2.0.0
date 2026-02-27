@@ -348,35 +348,36 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
 
               {(activeTab === 'Factures' || activeTab === 'Paiements') && (
                 <div className="max-w-5xl mx-auto space-y-6 animate-in slide-in-from-bottom-2 duration-300">
-                  <div className="bg-white dark:bg-white/5 rounded-[15px] border border-slate-200 dark:border-white/5 overflow-hidden shadow-sm">
-                    <table className="w-full text-left border-collapse">
-                      <thead className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-white/5">
-                        <tr>
-                          {activeTab === 'Factures' ? (
-                            <>
-                              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-left">Date</th>
-                              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-left">N° Facture</th>
-                              <th className="px-6 py-4 text-center text-[10px] font-bold uppercase tracking-widest text-slate-400">Pièces</th>
-                              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-right">TTC</th>
-                              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-right">Reste</th>
-                            </>
-                          ) : (
-                            <>
-                              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-left">Date</th>
-                              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-left">Réf.</th>
-                              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-left">Mode</th>
-                              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-right">Montant</th>
-                              <th className="px-6 py-4 text-center text-[10px] font-bold uppercase tracking-widest text-slate-400">Actions</th>
-                            </>
-                          )}
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-50 dark:divide-white/5">
-                        {activeTab === 'Factures' ? clientInvoices.map((inv) => {
-                          const paid = (inv.payments || []).reduce((sum, p) => sum + p.amount, 0);
-                          const pieces = inv.items.reduce((sum, item) => sum + item.quantity, 0);
-                          return (
-                            <tr key={inv.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                  <div className="bg-white dark:bg-[#27354c] rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 overflow-hidden">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse">
+                        <thead className="bg-slate-50 dark:bg-slate-900/40 border-b border-slate-100 dark:border-white/5">
+                          <tr>
+                            {activeTab === 'Factures' ? (
+                              <>
+                                <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-left">Date</th>
+                                <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-left">N° Facture</th>
+                                <th className="px-6 py-5 text-center text-[10px] font-bold uppercase text-slate-400">Pièces</th>
+                                <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-right">TTC</th>
+                                <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-right">Reste</th>
+                              </>
+                            ) : (
+                              <>
+                                <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-left">Date</th>
+                                <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-left">Réf.</th>
+                                <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-left">Mode</th>
+                                <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-right">Montant</th>
+                                <th className="px-6 py-5 text-center text-[10px] font-bold uppercase text-slate-400">Actions</th>
+                              </>
+                            )}
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-50 dark:divide-white/5">
+                          {activeTab === 'Factures' ? clientInvoices.map((inv) => {
+                            const paid = (inv.payments || []).reduce((sum, p) => sum + p.amount, 0);
+                            const pieces = inv.items.reduce((sum, item) => sum + item.quantity, 0);
+                            return (
+                              <tr key={inv.id} className="hover:bg-slate-50/30 dark:hover:bg-white/5 transition-colors group">
                               <td className="px-6 py-4 text-xs text-slate-500 dark:text-slate-400 text-left">{new Date(inv.date).toLocaleDateString('fr-FR')}</td>
                               <td className="px-6 py-4 text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase text-left">{inv.number}</td>
                               <td className="px-6 py-4 text-center text-xs font-bold text-slate-600 dark:text-slate-300">{pieces}</td>
@@ -387,7 +388,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
                             </tr>
                           );
                         }) : clientPayments.map((p) => (
-                          <tr key={p.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                          <tr key={p.id} className="hover:bg-slate-50/30 dark:hover:bg-white/5 transition-colors group">
                             <td className="px-6 py-4 text-xs text-slate-500 dark:text-slate-400 text-left">{new Date(p.date).toLocaleDateString('fr-FR')}</td>
                             <td className="px-6 py-4 text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase text-left">{p.invoiceNumber}</td>
                             <td className="px-6 py-4 text-xs font-medium text-slate-600 dark:text-slate-300 uppercase text-left">{p.method}</td>
@@ -419,36 +420,40 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
                       </div>
                     </div>
 
-                    <table className="w-full mb-12 border-collapse">
-                      <thead>
-                        <tr className="bg-slate-900 dark:bg-slate-800 text-white">
-                          <th className="py-3 px-4 text-left text-[9px] font-bold uppercase tracking-widest">Date</th>
-                          <th className="py-3 px-4 text-left text-[9px] font-bold uppercase tracking-widest">Nature</th>
-                          <th className="py-3 px-4 text-right text-[9px] font-bold uppercase tracking-widest">Débit</th>
-                          <th className="py-3 px-4 text-right text-[9px] font-bold uppercase tracking-widest">Crédit</th>
-                          <th className="py-3 px-4 text-right text-[9px] font-bold uppercase tracking-widest bg-slate-800 dark:bg-slate-700">Solde</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100 dark:divide-white/5 border-b border-slate-200 dark:border-white/5">
-                        {operationsWithBalance.map((op, idx) => (
-                          <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
-                            <td className="py-3 px-4 text-[10px] text-slate-500 dark:text-slate-400 font-medium">{new Date(op.date).toLocaleDateString('fr-FR')}</td>
-                            <td className="py-3 px-4 text-[10px] font-bold text-slate-700 dark:text-slate-200">{op.type} ({op.reference})</td>
-                            <td className="py-3 px-4 text-right text-[10px] font-medium text-slate-800 dark:text-white">{op.debit > 0 ? op.debit.toLocaleString() : '-'}</td>
-                            <td className="py-3 px-4 text-right text-[10px] font-medium text-emerald-600">{op.credit > 0 ? op.credit.toLocaleString() : '-'}</td>
-                            <td className="py-3 px-4 text-right text-[10px] font-black text-slate-900 dark:text-white bg-slate-50/50 dark:bg-white/5">{op.balance.toLocaleString()}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                      <tfoot>
-                        <tr className="bg-slate-50 dark:bg-white/5 font-black">
-                          <td colSpan={2} className="py-4 px-4 text-[9px] uppercase tracking-widest">Totals</td>
-                          <td className="py-4 px-4 text-right text-[11px]">{totalInvoiced.toLocaleString()}</td>
-                          <td className="py-4 px-4 text-right text-[11px] text-emerald-600">{totalCollected.toLocaleString()}</td>
-                          <td className="py-4 px-4 text-right text-[12px] text-rose-500 bg-rose-50 dark:bg-rose-500/10">{soldeDebiteur.toLocaleString()} MAD</td>
-                        </tr>
-                      </tfoot>
-                    </table>
+                    <div className="bg-white dark:bg-[#27354c] rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 overflow-hidden mb-12">
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                          <thead className="bg-slate-50 dark:bg-slate-900/40 border-b border-slate-100 dark:border-white/5">
+                            <tr>
+                              <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-left">Date</th>
+                              <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-left">Nature</th>
+                              <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-right">Débit</th>
+                              <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-right">Crédit</th>
+                              <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-right">Solde</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-50 dark:divide-white/5">
+                            {operationsWithBalance.map((op, idx) => (
+                              <tr key={idx} className="hover:bg-slate-50/30 dark:hover:bg-white/5 transition-colors group">
+                                <td className="px-6 py-4 text-[10px] text-slate-500 dark:text-slate-400 font-medium">{new Date(op.date).toLocaleDateString('fr-FR')}</td>
+                                <td className="px-6 py-4 text-[10px] font-bold text-slate-700 dark:text-slate-200">{op.type} ({op.reference})</td>
+                                <td className="px-6 py-4 text-right text-[10px] font-medium text-slate-800 dark:text-white">{op.debit > 0 ? op.debit.toLocaleString() : '-'}</td>
+                                <td className="px-6 py-4 text-right text-[10px] font-medium text-emerald-600">{op.credit > 0 ? op.credit.toLocaleString() : '-'}</td>
+                                <td className="px-6 py-4 text-right text-[10px] font-black text-slate-900 dark:text-white">{op.balance.toLocaleString()}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                          <tfoot>
+                            <tr className="bg-slate-50 dark:bg-slate-900/40 font-black border-t border-slate-100 dark:border-white/5">
+                              <td colSpan={2} className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400">Totals</td>
+                              <td className="px-6 py-5 text-right text-[11px]">{totalInvoiced.toLocaleString()}</td>
+                              <td className="px-6 py-5 text-right text-[11px] text-emerald-600">{totalCollected.toLocaleString()}</td>
+                              <td className="px-6 py-5 text-right text-[12px] text-rose-500">{soldeDebiteur.toLocaleString()} MAD</td>
+                            </tr>
+                          </tfoot>
+                        </table>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}

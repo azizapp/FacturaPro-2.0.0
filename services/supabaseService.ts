@@ -157,6 +157,28 @@ export const db = {
         return data;
     },
 
+    updateProduct: async (product: Product): Promise<Product> => {
+        const { id, ...updates } = product;
+        const { data, error } = await supabase
+            .from('products')
+            .update(updates)
+            .eq('id', id)
+            .select('id, name, description, price, unit')
+            .single();
+
+        if (error) throw error;
+        return data;
+    },
+
+    deleteProduct: async (id: string): Promise<void> => {
+        const { error } = await supabase
+            .from('products')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
+    },
+
     // --- Invoices ---
     getInvoices: async (): Promise<Invoice[]> => {
         const { data, error } = await supabase
