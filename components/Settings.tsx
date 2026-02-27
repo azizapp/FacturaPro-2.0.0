@@ -1,6 +1,7 @@
 
 import React, { useState, useRef } from 'react';
 import { Company } from '../types';
+import { encrypt, decrypt } from '../services/encryptionService';
 
 interface SettingsProps {
   company: Company;
@@ -9,13 +10,18 @@ interface SettingsProps {
 
 const Settings: React.FC<SettingsProps> = ({ company, onUpdate }) => {
   const [formData, setFormData] = useState<Company>(company);
+  const [aiKey, setAiKey] = useState<string>(company.ai_api_key ? decrypt(company.ai_api_key) : '');
   const logoInputRef = useRef<HTMLInputElement>(null);
   const signatureInputRef = useRef<HTMLInputElement>(null);
   const appIconInputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onUpdate(formData);
+    const updatedCompany = {
+      ...formData,
+      ai_api_key: aiKey ? encrypt(aiKey) : undefined
+    };
+    onUpdate(updatedCompany);
     alert('Paramètres enregistrés !');
   };
 
@@ -35,7 +41,7 @@ const Settings: React.FC<SettingsProps> = ({ company, onUpdate }) => {
       <form onSubmit={handleSubmit} className="space-y-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-1 space-y-8">
-            <div className="bg-white dark:bg-[#1b263b] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 space-y-8">
+            <div className="bg-white dark:bg-[#27354c] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 space-y-8">
               <h4 className="text-[11px] font-black text-indigo-600 dark:text-indigo-400 uppercase border-b border-slate-100 dark:border-white/5 pb-2">Logo Entreprise</h4>
               <div onClick={() => logoInputRef.current?.click()} className="h-32 rounded-[12px] border-2 border-dashed border-slate-200 dark:border-white/10 flex items-center justify-center cursor-pointer bg-slate-50 dark:bg-slate-900/30 overflow-hidden">
                 {formData.logo ? <img src={formData.logo} className="h-full object-contain" alt="Logo preview" /> : <span className="text-xs text-slate-400">Cliquez pour ajouter un logo</span>}
@@ -43,7 +49,7 @@ const Settings: React.FC<SettingsProps> = ({ company, onUpdate }) => {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-[#1b263b] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 space-y-8">
+            <div className="bg-white dark:bg-[#27354c] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 space-y-8">
               <h4 className="text-[11px] font-black text-emerald-600 dark:text-emerald-400 uppercase border-b border-slate-100 dark:border-white/5 pb-2">Signature / Cachet</h4>
               <div onClick={() => signatureInputRef.current?.click()} className="h-32 rounded-[12px] border-2 border-dashed border-slate-200 dark:border-white/10 flex items-center justify-center cursor-pointer bg-slate-50 dark:bg-slate-900/30 overflow-hidden">
                 {formData.signature ? <img src={formData.signature} className="h-full object-contain mix-blend-multiply" alt="Signature preview" /> : <span className="text-xs text-slate-400">Cliquez pour ajouter une signature</span>}
@@ -52,7 +58,7 @@ const Settings: React.FC<SettingsProps> = ({ company, onUpdate }) => {
               <p className="text-[9px] text-slate-400 font-medium italic text-center">Utilisez de préférence une image sur fond blanc (PNG/JPG).</p>
             </div>
 
-            <div className="bg-white dark:bg-[#1b263b] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 space-y-8">
+            <div className="bg-white dark:bg-[#27354c] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 space-y-8">
               <h4 className="text-[11px] font-black text-blue-500 dark:text-blue-400 uppercase border-b border-slate-100 dark:border-white/5 pb-2">Icône de l'application</h4>
               <div onClick={() => appIconInputRef.current?.click()} className="h-32 rounded-[12px] border-2 border-dashed border-slate-200 dark:border-white/10 flex items-center justify-center cursor-pointer bg-slate-50 dark:bg-slate-900/30 overflow-hidden">
                 {formData.app_icon ? <img src={formData.app_icon} className="h-full object-contain" alt="App Icon preview" /> : <span className="text-xs text-slate-400">Cliquez pour ajouter une icône</span>}
@@ -63,7 +69,7 @@ const Settings: React.FC<SettingsProps> = ({ company, onUpdate }) => {
           </div>
 
           <div className="lg:col-span-2 space-y-8">
-            <div className="bg-white dark:bg-[#1b263b] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 space-y-8">
+            <div className="bg-white dark:bg-[#27354c] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 space-y-8">
                <h4 className="text-[11px] font-black text-orange-500 dark:text-orange-400 uppercase border-b border-slate-100 dark:border-white/5 pb-2">Informations Générales</h4>
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                  <div className="md:col-span-2 space-y-2">
@@ -89,7 +95,27 @@ const Settings: React.FC<SettingsProps> = ({ company, onUpdate }) => {
                </div>
             </div>
 
-            <div className="bg-white dark:bg-[#1b263b] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 space-y-6">
+            <div className="bg-white dark:bg-[#27354c] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 space-y-6">
+              <h4 className="text-[11px] font-black text-indigo-600 dark:text-indigo-400 uppercase border-b border-slate-100 dark:border-white/5 pb-2">Intelligence Artificielle</h4>
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-slate-400 uppercase">Clé API Gemini</label>
+                <div className="relative">
+                  <input 
+                    type="password" 
+                    value={aiKey} 
+                    onChange={(e) => setAiKey(e.target.value)} 
+                    placeholder="Entrez votre clé API Gemini..." 
+                    className="w-full bg-slate-50 dark:bg-slate-900/30 border border-slate-200 dark:border-white/5 rounded-[8px] px-5 py-4 text-sm font-bold outline-none text-slate-800 dark:text-white pr-12" 
+                  />
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
+                    <i className="fas fa-key"></i>
+                  </div>
+                </div>
+                <p className="text-[9px] text-slate-400 font-medium italic">Votre clé est stockée de manière sécurisée et cryptée.</p>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-[#27354c] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 space-y-6">
               <h4 className="text-[11px] font-black text-indigo-600 dark:text-indigo-400 uppercase border-b border-slate-100 dark:border-white/5 pb-2">Numérotation des Factures</h4>
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-2">
@@ -103,7 +129,7 @@ const Settings: React.FC<SettingsProps> = ({ company, onUpdate }) => {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-[#1b263b] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 space-y-6">
+            <div className="bg-white dark:bg-[#27354c] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 space-y-6">
               <h4 className="text-[11px] font-black text-emerald-600 dark:text-emerald-400 uppercase border-b border-slate-100 dark:border-white/5 pb-2">Personnalisation Document</h4>
               <div className="space-y-2">
                 <label className="text-[10px] font-bold text-slate-400 uppercase">Pied de page global</label>

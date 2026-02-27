@@ -40,6 +40,7 @@ export interface Company {
   remarques?: string;
   invoice_prefix?: string;
   invoice_start_number?: number;
+  ai_api_key?: string;
 }
 
 export interface Client {

@@ -1,11 +1,22 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
 import { Invoice, Client, InvoiceStatus } from "../types";
+import { decrypt } from "./encryptionService";
 
-// Always use const ai = new GoogleGenAI({apiKey: process.env.GEMINI_API_KEY});
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+// Helper to get AI instance with the correct key
+const getAIInstance = (customKey?: string) => {
+  const key = customKey ? decrypt(customKey) : process.env.GEMINI_API_KEY;
+  if (!key) return null;
+  return new GoogleGenAI({ apiKey: key });
+};
 
-export const generateFollowUpEmail = async (invoice: Invoice, clientData: Client): Promise<string> => {
+export const generateFollowUpEmail = async (invoice: Invoice, clientData: Client, aiKey?: string): Promise<string> => {
+  const ai = getAIInstance(aiKey);
+  
+  if (!ai) {
+    return "Clé API IA non configurée. Veuillez la configurer dans les paramètres.";
+  }
+
   const prompt = `Génère un email professionnel de relance pour la facture suivante :
   Numéro de facture : ${invoice.number}
   Client : ${clientData.name}
@@ -15,26 +26,28 @@ export const generateFollowUpEmail = async (invoice: Invoice, clientData: Client
   L'email doit être poli, professionnel, et rédigé en français. Ne mets pas d'objet, juste le corps du message.`;
 
   try {
-    // Generate content from the model using prompt and model name
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: prompt
     });
-    // Extract text from GenerateContentResponse using .text property
     return response.text || "Impossible de générer l'email.";
   } catch (error) {
     console.error("Gemini Error:", error);
-    return "Erreur lors de la génération de l'email par l'IA.";
+    return "Erreur lors de la génération de l'email par l'IA. Vérifiez votre clé API.";
   }
 };
 
-export interface InvoiceSummary {
-  summary: string;
-  insights: string[];
-  recommendation: string;
-}
+export const summarizeInvoices = async (invoices: Invoice[], aiKey?: string): Promise<any> => {
+  const ai = getAIInstance(aiKey);
 
-export const summarizeInvoices = async (invoices: Invoice[]): Promise<InvoiceSummary> => {
+  if (!ai) {
+    return {
+      summary: "IA non configurée.",
+      insights: ["Veuillez ajouter votre clé API dans les paramètres"],
+      recommendation: "Configuration requise."
+    };
+  }
+
   const total = invoices.reduce((sum, inv) => sum + inv.grandTotal, 0);
   const totalHt = invoices.reduce((sum, inv) => sum + (inv.subtotal || 0), 0);
   const totalTva = invoices.reduce((sum, inv) => sum + (inv.tvaTotal || 0), 0);
@@ -51,7 +64,6 @@ export const summarizeInvoices = async (invoices: Invoice[]): Promise<InvoiceSum
   Fournis une réponse JSON en français.`;
 
   try {
-    // Generate structured JSON output using responseSchema for better reliability
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: prompt,
@@ -80,7 +92,6 @@ export const summarizeInvoices = async (invoices: Invoice[]): Promise<InvoiceSum
         }
       }
     });
-    // Use .text property to get the generated string
     const text = response.text?.trim() || "{}";
     return JSON.parse(text);
   } catch (error) {
