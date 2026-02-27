@@ -7,7 +7,7 @@ export const db = {
     getCompanySettings: async (): Promise<Company | null> => {
         const { data, error } = await supabase
             .from('Factur_settings')
-            .select('id, name, siret, address, country, city, email, phone, logo, icons, footer, signature, remarques, invoice_prefix, invoice_start_number')
+            .select('id, name, siret, address, country, city, email, phone, logo, icons, footer, signature, app_icon, remarques, invoice_prefix, invoice_start_number')
             .limit(1)
             .maybeSingle();
 
@@ -36,6 +36,7 @@ export const db = {
                     icons: updates.icons,
                     footer: updates.footer,
                     signature: updates.signature,
+                    app_icon: updates.app_icon,
                     remarques: updates.remarques,
                     invoice_prefix: updates.invoice_prefix,
                     invoice_start_number: updates.invoice_start_number
@@ -57,6 +58,7 @@ export const db = {
                     icons: updates.icons,
                     footer: updates.footer,
                     signature: updates.signature,
+                    app_icon: updates.app_icon,
                     remarques: updates.remarques,
                     invoice_prefix: updates.invoice_prefix,
                     invoice_start_number: updates.invoice_start_number

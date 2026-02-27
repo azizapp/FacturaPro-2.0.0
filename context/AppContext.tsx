@@ -113,6 +113,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             
             if (freshData.company) {
                 setCompany(freshData.company);
+                if (freshData.company.app_icon) {
+                    localStorage.setItem('app_icon', freshData.company.app_icon);
+                }
             } else if (!company) {
                 setCompany({
                     id: '1', name: 'Ma Société', address: '123 Rue de la Paix',
@@ -187,6 +190,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     const updateCompany = (newCompany: Company) => {
         setCompany(newCompany);
+        if (newCompany.app_icon) {
+            localStorage.setItem('app_icon', newCompany.app_icon);
+        } else {
+            localStorage.removeItem('app_icon');
+        }
         // Utiliser une version simplifiée de mise à jour pour éviter les problèmes de RLS si l'ID n'est pas bon
         db.updateCompanySettings(newCompany).catch(e => {
             console.error("Erreur de synchro paramètres:", e);

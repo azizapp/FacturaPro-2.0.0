@@ -163,7 +163,13 @@ const App: React.FC = () => {
     <div className={`flex h-screen overflow-hidden font-sans text-[13px] ${theme === 'dark' ? 'bg-slate-900 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
       <div className={`${sidebarCollapsed ? 'w-20' : 'w-64'} ${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-900'} text-white flex flex-col shrink-0 transition-all duration-300 ease-in-out`}>
         <div className="p-6 border-b border-slate-800 flex items-center space-x-3">
-          <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center"><i className="fas fa-file-invoice text-xl"></i></div>
+          {company?.app_icon ? (
+            <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center bg-transparent shrink-0">
+              <img src={company.app_icon} alt="App Icon" className="w-full h-full object-contain" />
+            </div>
+          ) : (
+            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shrink-0"><i className="fas fa-file-invoice text-xl"></i></div>
+          )}
           {!sidebarCollapsed && <span className="text-xl font-black tracking-tighter italic">FACTURAPRO</span>}
         </div>
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto custom-scrollbar">
@@ -175,6 +181,17 @@ const App: React.FC = () => {
           <NavItem icon="fa-money-bill-wave" label="Paiements" active={activeView === 'payments'} onClick={() => setActiveView('payments')} collapsed={sidebarCollapsed} />
           <NavItem icon="fa-cog" label="Paramètres" active={activeView === 'settings'} onClick={() => setActiveView('settings')} collapsed={sidebarCollapsed} />
         </nav>
+        
+        <div className="p-4 border-t border-slate-800 space-y-2">
+          <button onClick={toggleTheme} className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center' : 'space-x-3 px-4'} py-3 rounded-[15px] text-sm font-medium transition-all text-slate-400 hover:bg-slate-800 hover:text-white`}>
+            <i className={`fas ${theme === 'dark' ? 'fa-sun text-amber-400' : 'fa-moon'} w-5`}></i>
+            {!sidebarCollapsed && <span>{theme === 'dark' ? 'Mode Clair' : 'Mode Sombre'}</span>}
+          </button>
+          <button onClick={logout} className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center' : 'space-x-3 px-4'} py-3 rounded-[15px] text-sm font-medium transition-all text-rose-400 hover:bg-rose-500/10 hover:text-rose-500`} title="Déconnexion">
+            <i className="fas fa-sign-out-alt w-5"></i>
+            {!sidebarCollapsed && <span>Déconnexion</span>}
+          </button>
+        </div>
       </div>
 
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -186,12 +203,6 @@ const App: React.FC = () => {
             <h2 className={`text-sm font-bold uppercase tracking-widest ${theme === 'dark' ? 'text-slate-200' : 'text-slate-800'}`}>{activeView.replace('-', ' ')}</h2>
           </div>
           <div className="flex items-center space-x-4">
-            <button onClick={toggleTheme} className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${theme === 'dark' ? 'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}>
-              <i className={`fas ${theme === 'dark' ? 'fa-sun' : 'fa-moon'}`}></i>
-            </button>
-            <button onClick={logout} className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${theme === 'dark' ? 'bg-rose-500/20 text-rose-400 hover:bg-rose-500/30' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`} title="Déconnexion">
-              <i className="fas fa-sign-out-alt"></i>
-            </button>
             <div className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-white shadow-lg">{company?.name.charAt(0) || 'P'}</div>
           </div>
         </header>

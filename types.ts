@@ -35,6 +35,7 @@ export interface Company {
   country?: string;
   footer?: string;
   signature?: string;
+  app_icon?: string;
   icons?: string;
   remarques?: string;
   invoice_prefix?: string;

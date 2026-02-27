@@ -11,6 +11,7 @@ const Settings: React.FC<SettingsProps> = ({ company, onUpdate }) => {
   const [formData, setFormData] = useState<Company>(company);
   const logoInputRef = useRef<HTMLInputElement>(null);
   const signatureInputRef = useRef<HTMLInputElement>(null);
+  const appIconInputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,6 +50,15 @@ const Settings: React.FC<SettingsProps> = ({ company, onUpdate }) => {
                 <input type="file" ref={signatureInputRef} className="hidden" onChange={handleFileChange('signature')} accept="image/*" />
               </div>
               <p className="text-[9px] text-slate-400 font-medium italic text-center">Utilisez de préférence une image sur fond blanc (PNG/JPG).</p>
+            </div>
+
+            <div className="bg-white dark:bg-[#27354c] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 space-y-8">
+              <h4 className="text-[11px] font-black text-blue-500 dark:text-blue-400 uppercase border-b border-slate-100 dark:border-white/5 pb-2">Icône de l'application</h4>
+              <div onClick={() => appIconInputRef.current?.click()} className="h-32 rounded-[12px] border-2 border-dashed border-slate-200 dark:border-white/10 flex items-center justify-center cursor-pointer bg-slate-50 dark:bg-slate-900/30 overflow-hidden">
+                {formData.app_icon ? <img src={formData.app_icon} className="h-full object-contain" alt="App Icon preview" /> : <span className="text-xs text-slate-400">Cliquez pour ajouter une icône</span>}
+                <input type="file" ref={appIconInputRef} className="hidden" onChange={handleFileChange('app_icon')} accept="image/*" />
+              </div>
+              <p className="text-[9px] text-slate-400 font-medium italic text-center">Utilisez de préférence une image carrée (PNG/JPG).</p>
             </div>
           </div>
 

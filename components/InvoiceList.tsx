@@ -24,6 +24,16 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
   const [selectedClientId, setSelectedClientId] = useState<string>(initialClientId || activeClientsWithInvoices[0]?.id || '');
   const [activeTab, setActiveTab] = useState<string>("Vue d'ensemble");
 
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
+  const pageSizeOptions = [10, 20, 30, 50, 100, 200];
+
+  // Reset pagination when tab or client changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, selectedClientId, itemsPerPage]);
+
   useEffect(() => {
     if (initialClientId) {
       setSelectedClientId(initialClientId);
@@ -72,6 +82,22 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
   const totalCollected = clientPayments.reduce((sum, p) => sum + p.amount, 0);
   const totalPieces = clientInvoices.reduce((sum, inv) => sum + inv.items.reduce((s, item) => s + item.quantity, 0), 0);
   const soldeDebiteur = totalInvoiced - totalCollected;
+
+  const getPaginatedData = () => {
+    let data: any[] = [];
+    if (activeTab === 'Factures') data = clientInvoices;
+    else if (activeTab === 'Paiements') data = clientPayments;
+    
+    const totalPages = Math.ceil(data.length / itemsPerPage);
+    const paginatedData = data.slice(
+      (currentPage - 1) * itemsPerPage,
+      currentPage * itemsPerPage
+    );
+    
+    return { data, paginatedData, totalPages };
+  };
+
+  const { data: currentData, paginatedData, totalPages } = getPaginatedData();
 
   const handleShareWhatsApp = async () => {
     if (!selectedClient) return;
@@ -348,36 +374,35 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
 
               {(activeTab === 'Factures' || activeTab === 'Paiements') && (
                 <div className="max-w-5xl mx-auto space-y-6 animate-in slide-in-from-bottom-2 duration-300">
-                  <div className="bg-white dark:bg-[#27354c] rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 overflow-hidden">
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left border-collapse">
-                        <thead className="bg-slate-50 dark:bg-slate-900/40 border-b border-slate-100 dark:border-white/5">
-                          <tr>
-                            {activeTab === 'Factures' ? (
-                              <>
-                                <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-left">Date</th>
-                                <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-left">N° Facture</th>
-                                <th className="px-6 py-5 text-center text-[10px] font-bold uppercase text-slate-400">Pièces</th>
-                                <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-right">TTC</th>
-                                <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-right">Reste</th>
-                              </>
-                            ) : (
-                              <>
-                                <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-left">Date</th>
-                                <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-left">Réf.</th>
-                                <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-left">Mode</th>
-                                <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-right">Montant</th>
-                                <th className="px-6 py-5 text-center text-[10px] font-bold uppercase text-slate-400">Actions</th>
-                              </>
-                            )}
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-50 dark:divide-white/5">
-                          {activeTab === 'Factures' ? clientInvoices.map((inv) => {
-                            const paid = (inv.payments || []).reduce((sum, p) => sum + p.amount, 0);
-                            const pieces = inv.items.reduce((sum, item) => sum + item.quantity, 0);
-                            return (
-                              <tr key={inv.id} className="hover:bg-slate-50/30 dark:hover:bg-white/5 transition-colors group">
+                  <div className="bg-white dark:bg-white/5 rounded-[15px] border border-slate-200 dark:border-white/5 overflow-hidden shadow-sm">
+                    <table className="w-full text-left border-collapse">
+                      <thead className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-white/5">
+                        <tr>
+                          {activeTab === 'Factures' ? (
+                            <>
+                              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-left">Date</th>
+                              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-left">N° Facture</th>
+                              <th className="px-6 py-4 text-center text-[10px] font-bold uppercase tracking-widest text-slate-400">Pièces</th>
+                              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-right">TTC</th>
+                              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-right">Reste</th>
+                            </>
+                          ) : (
+                            <>
+                              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-left">Date</th>
+                              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-left">Réf.</th>
+                              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-left">Mode</th>
+                              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-right">Montant</th>
+                              <th className="px-6 py-4 text-center text-[10px] font-bold uppercase tracking-widest text-slate-400">Actions</th>
+                            </>
+                          )}
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-50 dark:divide-white/5">
+                        {activeTab === 'Factures' ? paginatedData.map((inv: any) => {
+                          const paid = (inv.payments || []).reduce((sum: any, p: any) => sum + p.amount, 0);
+                          const pieces = inv.items.reduce((sum: any, item: any) => sum + item.quantity, 0);
+                          return (
+                            <tr key={inv.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
                               <td className="px-6 py-4 text-xs text-slate-500 dark:text-slate-400 text-left">{new Date(inv.date).toLocaleDateString('fr-FR')}</td>
                               <td className="px-6 py-4 text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase text-left">{inv.number}</td>
                               <td className="px-6 py-4 text-center text-xs font-bold text-slate-600 dark:text-slate-300">{pieces}</td>
@@ -387,8 +412,8 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
                               </td>
                             </tr>
                           );
-                        }) : clientPayments.map((p) => (
-                          <tr key={p.id} className="hover:bg-slate-50/30 dark:hover:bg-white/5 transition-colors group">
+                        }) : paginatedData.map((p: any) => (
+                          <tr key={p.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
                             <td className="px-6 py-4 text-xs text-slate-500 dark:text-slate-400 text-left">{new Date(p.date).toLocaleDateString('fr-FR')}</td>
                             <td className="px-6 py-4 text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase text-left">{p.invoiceNumber}</td>
                             <td className="px-6 py-4 text-xs font-medium text-slate-600 dark:text-slate-300 uppercase text-left">{p.method}</td>
@@ -400,6 +425,80 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
                         ))}
                       </tbody>
                     </table>
+                  </div>
+
+                  {/* Pagination Footer */}
+                  <div className="px-6 py-4 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-white/5 rounded-[15px] flex flex-col sm:flex-row items-center justify-between gap-4 shrink-0 shadow-sm">
+                    <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8">
+                      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">
+                        Affichage de <span className="text-slate-800 dark:text-slate-200">
+                          {currentData.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0}
+                        </span> à <span className="text-slate-800 dark:text-slate-200">
+                          {Math.min(currentPage * itemsPerPage, currentData.length)}
+                        </span> sur <span className="text-indigo-600 dark:text-indigo-400 font-black">{currentData.length}</span> documents
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <label className="text-[9px] font-black uppercase text-slate-400 tracking-tighter whitespace-nowrap">Lignes par page:</label>
+                        <select 
+                          value={itemsPerPage}
+                          onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                          className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-lg text-[10px] font-black px-2 py-1 outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white cursor-pointer"
+                        >
+                          {pageSizeOptions.map(option => (
+                            <option key={option} value={option}>{option}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    {totalPages > 1 && (
+                      <div className="flex items-center space-x-1">
+                        <button
+                          onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                          disabled={currentPage === 1}
+                          className="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-white/10 text-slate-400 disabled:opacity-30 hover:bg-white dark:hover:bg-slate-800 transition-all active:scale-90"
+                        >
+                          <i className="fas fa-chevron-left text-[10px]"></i>
+                        </button>
+                        
+                        <div className="flex items-center space-x-1 overflow-x-auto no-scrollbar max-w-[200px] sm:max-w-none">
+                          {[...Array(totalPages)].map((_, i) => {
+                            const page = i + 1;
+                            if (
+                              page === 1 || 
+                              page === totalPages || 
+                              (page >= currentPage - 2 && page <= currentPage + 2)
+                            ) {
+                              return (
+                                <button
+                                  key={page}
+                                  onClick={() => setCurrentPage(page)}
+                                  className={`w-10 h-10 rounded-xl text-xs font-black transition-all active:scale-90 shrink-0 ${
+                                    currentPage === page 
+                                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' 
+                                    : 'text-slate-500 hover:bg-white dark:hover:bg-slate-800 border border-transparent hover:border-slate-200 dark:hover:border-white/10'
+                                  }`}
+                                >
+                                  {page}
+                                </button>
+                              );
+                            } else if (page === currentPage - 3 || page === currentPage + 3) {
+                              return <span key={page} className="text-slate-300 dark:text-slate-700 text-xs px-1">...</span>;
+                            }
+                            return null;
+                          })}
+                        </div>
+
+                        <button
+                          onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                          disabled={currentPage === totalPages}
+                          className="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-white/10 text-slate-400 disabled:opacity-30 hover:bg-white dark:hover:bg-slate-800 transition-all active:scale-90"
+                        >
+                          <i className="fas fa-chevron-right text-[10px]"></i>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -420,40 +519,36 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
                       </div>
                     </div>
 
-                    <div className="bg-white dark:bg-[#27354c] rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 overflow-hidden mb-12">
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
-                          <thead className="bg-slate-50 dark:bg-slate-900/40 border-b border-slate-100 dark:border-white/5">
-                            <tr>
-                              <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-left">Date</th>
-                              <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-left">Nature</th>
-                              <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-right">Débit</th>
-                              <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-right">Crédit</th>
-                              <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-right">Solde</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-50 dark:divide-white/5">
-                            {operationsWithBalance.map((op, idx) => (
-                              <tr key={idx} className="hover:bg-slate-50/30 dark:hover:bg-white/5 transition-colors group">
-                                <td className="px-6 py-4 text-[10px] text-slate-500 dark:text-slate-400 font-medium">{new Date(op.date).toLocaleDateString('fr-FR')}</td>
-                                <td className="px-6 py-4 text-[10px] font-bold text-slate-700 dark:text-slate-200">{op.type} ({op.reference})</td>
-                                <td className="px-6 py-4 text-right text-[10px] font-medium text-slate-800 dark:text-white">{op.debit > 0 ? op.debit.toLocaleString() : '-'}</td>
-                                <td className="px-6 py-4 text-right text-[10px] font-medium text-emerald-600">{op.credit > 0 ? op.credit.toLocaleString() : '-'}</td>
-                                <td className="px-6 py-4 text-right text-[10px] font-black text-slate-900 dark:text-white">{op.balance.toLocaleString()}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                          <tfoot>
-                            <tr className="bg-slate-50 dark:bg-slate-900/40 font-black border-t border-slate-100 dark:border-white/5">
-                              <td colSpan={2} className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400">Totals</td>
-                              <td className="px-6 py-5 text-right text-[11px]">{totalInvoiced.toLocaleString()}</td>
-                              <td className="px-6 py-5 text-right text-[11px] text-emerald-600">{totalCollected.toLocaleString()}</td>
-                              <td className="px-6 py-5 text-right text-[12px] text-rose-500">{soldeDebiteur.toLocaleString()} MAD</td>
-                            </tr>
-                          </tfoot>
-                        </table>
-                      </div>
-                    </div>
+                    <table className="w-full mb-12 border-collapse">
+                      <thead>
+                        <tr className="bg-slate-900 dark:bg-slate-800 text-white">
+                          <th className="py-3 px-4 text-left text-[9px] font-bold uppercase tracking-widest">Date</th>
+                          <th className="py-3 px-4 text-left text-[9px] font-bold uppercase tracking-widest">Nature</th>
+                          <th className="py-3 px-4 text-right text-[9px] font-bold uppercase tracking-widest">Débit</th>
+                          <th className="py-3 px-4 text-right text-[9px] font-bold uppercase tracking-widest">Crédit</th>
+                          <th className="py-3 px-4 text-right text-[9px] font-bold uppercase tracking-widest bg-slate-800 dark:bg-slate-700">Solde</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 dark:divide-white/5 border-b border-slate-200 dark:border-white/5">
+                        {operationsWithBalance.map((op, idx) => (
+                          <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
+                            <td className="py-3 px-4 text-[10px] text-slate-500 dark:text-slate-400 font-medium">{new Date(op.date).toLocaleDateString('fr-FR')}</td>
+                            <td className="py-3 px-4 text-[10px] font-bold text-slate-700 dark:text-slate-200">{op.type} ({op.reference})</td>
+                            <td className="py-3 px-4 text-right text-[10px] font-medium text-slate-800 dark:text-white">{op.debit > 0 ? op.debit.toLocaleString() : '-'}</td>
+                            <td className="py-3 px-4 text-right text-[10px] font-medium text-emerald-600">{op.credit > 0 ? op.credit.toLocaleString() : '-'}</td>
+                            <td className="py-3 px-4 text-right text-[10px] font-black text-slate-900 dark:text-white bg-slate-50/50 dark:bg-white/5">{op.balance.toLocaleString()}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                      <tfoot>
+                        <tr className="bg-slate-50 dark:bg-white/5 font-black">
+                          <td colSpan={2} className="py-4 px-4 text-[9px] uppercase tracking-widest">Totals</td>
+                          <td className="py-4 px-4 text-right text-[11px]">{totalInvoiced.toLocaleString()}</td>
+                          <td className="py-4 px-4 text-right text-[11px] text-emerald-600">{totalCollected.toLocaleString()}</td>
+                          <td className="py-4 px-4 text-right text-[12px] text-rose-500 bg-rose-50 dark:bg-rose-500/10">{soldeDebiteur.toLocaleString()} MAD</td>
+                        </tr>
+                      </tfoot>
+                    </table>
                   </div>
                 </div>
               )}

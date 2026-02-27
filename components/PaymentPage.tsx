@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Invoice, Client, InvoiceStatus, Payment, PaymentMethod } from '../types';
 
 interface PaymentPageProps {
@@ -22,6 +22,24 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ invoices, clients, onPaymentA
     const matchesSearch = searchTerm.trim() === '' || String(inv.number).toLowerCase().includes(searchTerm.toLowerCase());
     return matchesStatus && matchesSearch;
   });
+
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
+  const pageSizeOptions = [10, 20, 30, 50, 100, 200];
+
+  // Reset pagination when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, itemsPerPage]);
+
+  // Paginated Data
+  const totalPages = Math.ceil(pendingInvoices.length / itemsPerPage);
+  const paginatedInvoices = pendingInvoices.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   const getClientName = (id: string) => clients.find(c => c.id === id)?.name || 'Client inconnu';
   const calculatePaid = (invoice: Invoice) => (invoice.payments || []).reduce((s, p) => s + p.amount, 0);
   const calculateRemaining = (invoice: Invoice) => invoice.grandTotal - calculatePaid(invoice);
@@ -51,7 +69,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ invoices, clients, onPaymentA
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="bg-white dark:bg-[#27354c] rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 overflow-hidden flex flex-col h-[calc(100vh-250px)]">
+      <div className="bg-white dark:bg-[#27354c] rounded-[20px] shadow-xl border border-slate-200 dark:border-white/5 overflow-hidden flex flex-col h-[calc(100vh-250px)]">
         <div className="p-4 border-b border-slate-100 dark:border-white/5 bg-slate-50/30 dark:bg-slate-900/40 space-y-4 shrink-0">
           <div className="flex justify-between items-center">
              <h3 className="text-xl font-black text-slate-800 dark:text-white uppercase tracking-tight">Gestion des Encaissements</h3>
@@ -72,24 +90,24 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ invoices, clients, onPaymentA
           </div>
         </div>
 
-        <div className="flex-1 overflow-x-auto custom-scrollbar relative">
+        <div className="flex-1 overflow-auto custom-scrollbar relative">
           <table className="w-full text-left border-collapse min-w-[800px]">
-            <thead className="bg-slate-50 dark:bg-slate-900/40 border-b border-slate-100 dark:border-white/5">
+            <thead className="sticky top-0 z-20 bg-slate-50 dark:bg-slate-900 border-b border-slate-100 dark:border-white/10 shadow-sm">
               <tr>
-                <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 w-[15%]">Facture</th>
-                <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 w-[25%]">Client</th>
-                <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-right w-[15%]">Total TTC</th>
-                <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-right w-[15%]">Déjà Payé</th>
-                <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-right w-[15%]">Reste</th>
-                <th className="px-6 py-5 text-[10px] font-bold uppercase text-slate-400 text-center w-[15%]">Action</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] w-[15%]">Facture</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] w-[25%]">Client</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] text-right w-[15%]">Total TTC</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] text-right w-[15%]">Déjà Payé</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] text-right w-[15%]">Reste</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] text-center w-[15%]">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-50 dark:divide-white/5">
-              {pendingInvoices.length > 0 ? pendingInvoices.map((invoice) => {
+            <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+              {paginatedInvoices.length > 0 ? paginatedInvoices.map((invoice) => {
                 const paid = calculatePaid(invoice);
                 const remaining = calculateRemaining(invoice);
                 return (
-                  <tr key={invoice.id} className="hover:bg-slate-50/30 dark:hover:bg-white/5 transition-colors group">
+                  <tr key={invoice.id} className="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors group">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="text-[11px] font-black text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 px-2.5 py-1.5 rounded-lg border border-indigo-100 dark:border-indigo-500/10">
                         {invoice.number}
@@ -131,6 +149,80 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ invoices, clients, onPaymentA
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Pagination Footer */}
+        <div className="px-6 py-4 bg-slate-50 dark:bg-slate-900/60 border-t border-slate-100 dark:border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 shrink-0">
+          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8">
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">
+              Affichage de <span className="text-slate-800 dark:text-slate-200">
+                {pendingInvoices.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0}
+              </span> à <span className="text-slate-800 dark:text-slate-200">
+                {Math.min(currentPage * itemsPerPage, pendingInvoices.length)}
+              </span> sur <span className="text-indigo-600 dark:text-indigo-400 font-black">{pendingInvoices.length}</span> documents
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <label className="text-[9px] font-black uppercase text-slate-400 tracking-tighter whitespace-nowrap">Lignes par page:</label>
+              <select 
+                value={itemsPerPage}
+                onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-lg text-[10px] font-black px-2 py-1 outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white cursor-pointer"
+              >
+                {pageSizeOptions.map(option => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {totalPages > 1 && (
+            <div className="flex items-center space-x-1">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-white/10 text-slate-400 disabled:opacity-30 hover:bg-white dark:hover:bg-slate-800 transition-all active:scale-90"
+              >
+                <i className="fas fa-chevron-left text-[10px]"></i>
+              </button>
+              
+              <div className="flex items-center space-x-1 overflow-x-auto no-scrollbar max-w-[200px] sm:max-w-none">
+                {[...Array(totalPages)].map((_, i) => {
+                  const page = i + 1;
+                  if (
+                    page === 1 || 
+                    page === totalPages || 
+                    (page >= currentPage - 2 && page <= currentPage + 2)
+                  ) {
+                    return (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`w-10 h-10 rounded-xl text-xs font-black transition-all active:scale-90 shrink-0 ${
+                          currentPage === page 
+                          ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' 
+                          : 'text-slate-500 hover:bg-white dark:hover:bg-slate-800 border border-transparent hover:border-slate-200 dark:hover:border-white/10'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    );
+                  } else if (page === currentPage - 3 || page === currentPage + 3) {
+                    return <span key={page} className="text-slate-300 dark:text-slate-700 text-xs px-1">...</span>;
+                  }
+                  return null;
+                })}
+              </div>
+
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+                className="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-white/10 text-slate-400 disabled:opacity-30 hover:bg-white dark:hover:bg-slate-800 transition-all active:scale-90"
+              >
+                <i className="fas fa-chevron-right text-[10px]"></i>
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

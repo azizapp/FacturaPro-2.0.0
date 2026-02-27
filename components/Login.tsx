@@ -1,6 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { supabase, isSupabaseConfigured, updateSupabaseConfig } from '../services/supabaseClient';
+import { db } from '../services/supabaseService';
+import { Company } from '../types';
 
 interface LoginProps {
     onLogin: () => void;
@@ -12,10 +14,35 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [showManualConfig, setShowManualConfig] = useState(false);
+    const [company, setCompany] = useState<Company | null>(null);
     
     // Manual config states
     const [manualUrl, setManualUrl] = useState('');
     const [manualKey, setManualKey] = useState('');
+    const [localAppIcon, setLocalAppIcon] = useState<string | null>(null);
+
+    useEffect(() => {
+        const cachedIcon = localStorage.getItem('app_icon');
+        if (cachedIcon) {
+            setLocalAppIcon(cachedIcon);
+        }
+
+        const fetchCompany = async () => {
+            try {
+                if (isSupabaseConfigured()) {
+                    const data = await db.getCompanySettings();
+                    setCompany(data);
+                    if (data?.app_icon) {
+                        setLocalAppIcon(data.app_icon);
+                        localStorage.setItem('app_icon', data.app_icon);
+                    }
+                }
+            } catch (err) {
+                console.error("Error fetching company settings:", err);
+            }
+        };
+        fetchCompany();
+    }, []);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -59,9 +86,15 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             <div className="w-full max-w-[460px] relative z-10">
                 <div className="bg-slate-900/60 backdrop-blur-3xl p-10 rounded-[15px] shadow-2xl border border-white/10">
                     <div className="flex flex-col items-center mb-10">
-                        <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-2xl flex items-center justify-center text-white mb-6 shadow-xl shadow-indigo-500/20">
-                            <i className="fas fa-shield-alt text-2xl"></i>
-                        </div>
+                        {localAppIcon ? (
+                            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-xl overflow-hidden bg-transparent">
+                                <img src={localAppIcon} alt="App Icon" className="w-full h-full object-contain" />
+                            </div>
+                        ) : (
+                            <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-2xl flex items-center justify-center text-white mb-6 shadow-xl shadow-indigo-500/20">
+                                <i className="fas fa-file-invoice text-2xl"></i>
+                            </div>
+                        )}
                         <h1 className="text-3xl font-black text-white tracking-tighter uppercase italic">Factura<span className="text-indigo-500">Pro</span></h1>
                         <p className="text-slate-500 mt-2 text-[10px] font-bold uppercase tracking-[0.2em]">Authentification Sécurisée</p>
                     </div>
