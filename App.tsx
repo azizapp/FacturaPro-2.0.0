@@ -17,8 +17,7 @@ import ClientStatementPDFPreview from './components/ClientStatementPDFPreview';
 import DeleteConfirmationModal from './components/DeleteConfirmationModal';
 import Login from './components/Login';
 import { useAppContext } from './context/AppContext';
-import { InvoiceStatus } from './types';
-
+// هذا تعليق سطر واحد
 const App: React.FC = () => {
   const {
     invoices, clients, products, company, isLoading, theme, user, toggleTheme, logout, refreshUserData,
@@ -106,10 +105,11 @@ const App: React.FC = () => {
       case 'products': return <ProductList products={products} onAddProduct={() => { setSelectedProductId(null); setActiveView('product-form'); }} onEditProduct={(id) => { setSelectedProductId(id); setActiveView('product-form'); }} onDeleteProduct={(id) => setItemToDelete({ id, type: 'product' })} />;
       case 'payments': return <PaymentPage invoices={invoices} clients={clients} onPaymentAdded={addPayment} />;
       case 'settings': return <Settings company={company} onUpdate={updateCompany} />;
-      case 'invoice-detail':
+      case 'invoice-detail': {
         const inv = invoices.find(i => i.id === selectedInvoiceId);
         const cli = clients.find(c => c.id === inv?.clientId);
         return inv && cli ? <InvoiceDetailView invoice={inv} client={cli} company={company} onBack={() => setActiveView('invoices')} onAddPayment={(id) => setShowPaymentModal(id)} onPdf={(id) => setShowInvoicePdf(id)} onDelete={(id) => setItemToDelete({ id, type: 'invoice' })} /> : <div className="p-8 text-center text-slate-500">Facture non trouvée</div>;
+      }
       case 'client-form': 
         return (
           <ClientForm 

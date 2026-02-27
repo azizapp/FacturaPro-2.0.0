@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Client, Invoice } from '../types';
 
 interface ClientListProps {
@@ -10,7 +10,7 @@ interface ClientListProps {
   onViewHistory: (id: string) => void;
   onAddClient: () => void;
 }
-
+// هذا تعليق سطر واحد
 const ClientList: React.FC<ClientListProps> = ({ clients, invoices, onEditClient, onDeleteClient, onViewHistory, onAddClient }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -41,9 +41,15 @@ const ClientList: React.FC<ClientListProps> = ({ clients, invoices, onEditClient
   const pageSizeOptions = [10, 20, 30, 50, 100, 200];
 
   // Reset pagination when search changes
-  useEffect(() => {
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
     setCurrentPage(1);
-  }, [searchTerm, itemsPerPage]);
+  };
+
+  const handleItemsPerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setItemsPerPage(Number(e.target.value));
+    setCurrentPage(1);
+  };
 
   // Paginated Data
   const totalPages = Math.ceil(filteredClients.length / itemsPerPage);
@@ -72,12 +78,12 @@ const ClientList: React.FC<ClientListProps> = ({ clients, invoices, onEditClient
           type="text" 
           placeholder="Rechercher..." 
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-10 pr-4 py-3 bg-white dark:bg-[#27354c] border border-slate-200 dark:border-white/5 rounded-[10px] text-xs outline-none text-slate-700 dark:text-slate-200"
+          onChange={handleSearchChange}
+          className="w-full pl-10 pr-4 py-3 bg-white dark:bg-[#1b263b] border border-slate-200 dark:border-white/5 rounded-[10px] text-xs outline-none text-slate-700 dark:text-slate-200"
         />
       </div>
 
-      <div className="bg-white dark:bg-[#27354c] rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 overflow-hidden">
+      <div className="bg-white dark:bg-[#1b263b] rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead className="bg-slate-50 dark:bg-slate-900/40 border-b border-slate-100 dark:border-white/5">
@@ -138,7 +144,7 @@ const ClientList: React.FC<ClientListProps> = ({ clients, invoices, onEditClient
               <label className="text-[9px] font-black uppercase text-slate-400 tracking-tighter whitespace-nowrap">Lignes par page:</label>
               <select 
                 value={itemsPerPage}
-                onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                onChange={handleItemsPerPageChange}
                 className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-lg text-[10px] font-black px-2 py-1 outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white cursor-pointer"
               >
                 {pageSizeOptions.map(option => (

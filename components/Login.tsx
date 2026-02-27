@@ -2,19 +2,17 @@
 import React, { useState, useEffect } from 'react';
 import { supabase, isSupabaseConfigured, updateSupabaseConfig } from '../services/supabaseClient';
 import { db } from '../services/supabaseService';
-import { Company } from '../types';
 
 interface LoginProps {
     onLogin: () => void;
 }
-
+// هذا تعليق سطر واحد
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [showManualConfig, setShowManualConfig] = useState(false);
-    const [company, setCompany] = useState<Company | null>(null);
     
     // Manual config states
     const [manualUrl, setManualUrl] = useState('');
@@ -31,7 +29,6 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             try {
                 if (isSupabaseConfigured()) {
                     const data = await db.getCompanySettings();
-                    setCompany(data);
                     if (data?.app_icon) {
                         setLocalAppIcon(data.app_icon);
                         localStorage.setItem('app_icon', data.app_icon);
@@ -58,11 +55,12 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             const { error: loginError } = await supabase.auth.signInWithPassword({ email, password });
             if (loginError) throw loginError;
             onLogin();
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error("Login Error Details:", err);
-            setError(err.message === "Failed to fetch" 
+            const errorMessage = (err as { message?: string }).message || "Une erreur inconnue est survenue";
+            setError(errorMessage === "Failed to fetch" 
                 ? "Impossible de contacter le serveur Supabase. Vérifiez l'URL et votre connexion." 
-                : err.message);
+                : errorMessage);
         } finally {
             setLoading(false);
         }

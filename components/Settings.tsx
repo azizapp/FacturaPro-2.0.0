@@ -35,7 +35,7 @@ const Settings: React.FC<SettingsProps> = ({ company, onUpdate }) => {
       <form onSubmit={handleSubmit} className="space-y-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-1 space-y-8">
-            <div className="bg-white dark:bg-[#27354c] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 space-y-8">
+            <div className="bg-white dark:bg-[#1b263b] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 space-y-8">
               <h4 className="text-[11px] font-black text-indigo-600 dark:text-indigo-400 uppercase border-b border-slate-100 dark:border-white/5 pb-2">Logo Entreprise</h4>
               <div onClick={() => logoInputRef.current?.click()} className="h-32 rounded-[12px] border-2 border-dashed border-slate-200 dark:border-white/10 flex items-center justify-center cursor-pointer bg-slate-50 dark:bg-slate-900/30 overflow-hidden">
                 {formData.logo ? <img src={formData.logo} className="h-full object-contain" alt="Logo preview" /> : <span className="text-xs text-slate-400">Cliquez pour ajouter un logo</span>}
@@ -43,7 +43,7 @@ const Settings: React.FC<SettingsProps> = ({ company, onUpdate }) => {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-[#27354c] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 space-y-8">
+            <div className="bg-white dark:bg-[#1b263b] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 space-y-8">
               <h4 className="text-[11px] font-black text-emerald-600 dark:text-emerald-400 uppercase border-b border-slate-100 dark:border-white/5 pb-2">Signature / Cachet</h4>
               <div onClick={() => signatureInputRef.current?.click()} className="h-32 rounded-[12px] border-2 border-dashed border-slate-200 dark:border-white/10 flex items-center justify-center cursor-pointer bg-slate-50 dark:bg-slate-900/30 overflow-hidden">
                 {formData.signature ? <img src={formData.signature} className="h-full object-contain mix-blend-multiply" alt="Signature preview" /> : <span className="text-xs text-slate-400">Cliquez pour ajouter une signature</span>}
@@ -52,7 +52,7 @@ const Settings: React.FC<SettingsProps> = ({ company, onUpdate }) => {
               <p className="text-[9px] text-slate-400 font-medium italic text-center">Utilisez de préférence une image sur fond blanc (PNG/JPG).</p>
             </div>
 
-            <div className="bg-white dark:bg-[#27354c] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 space-y-8">
+            <div className="bg-white dark:bg-[#1b263b] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 space-y-8">
               <h4 className="text-[11px] font-black text-blue-500 dark:text-blue-400 uppercase border-b border-slate-100 dark:border-white/5 pb-2">Icône de l'application</h4>
               <div onClick={() => appIconInputRef.current?.click()} className="h-32 rounded-[12px] border-2 border-dashed border-slate-200 dark:border-white/10 flex items-center justify-center cursor-pointer bg-slate-50 dark:bg-slate-900/30 overflow-hidden">
                 {formData.app_icon ? <img src={formData.app_icon} className="h-full object-contain" alt="App Icon preview" /> : <span className="text-xs text-slate-400">Cliquez pour ajouter une icône</span>}
@@ -63,7 +63,7 @@ const Settings: React.FC<SettingsProps> = ({ company, onUpdate }) => {
           </div>
 
           <div className="lg:col-span-2 space-y-8">
-            <div className="bg-white dark:bg-[#27354c] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 space-y-8">
+            <div className="bg-white dark:bg-[#1b263b] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 space-y-8">
                <h4 className="text-[11px] font-black text-orange-500 dark:text-orange-400 uppercase border-b border-slate-100 dark:border-white/5 pb-2">Informations Générales</h4>
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                  <div className="md:col-span-2 space-y-2">
@@ -89,7 +89,7 @@ const Settings: React.FC<SettingsProps> = ({ company, onUpdate }) => {
                </div>
             </div>
 
-            <div className="bg-white dark:bg-[#27354c] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 space-y-6">
+            <div className="bg-white dark:bg-[#1b263b] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 space-y-6">
               <h4 className="text-[11px] font-black text-indigo-600 dark:text-indigo-400 uppercase border-b border-slate-100 dark:border-white/5 pb-2">Numérotation des Factures</h4>
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-2">
@@ -103,7 +103,7 @@ const Settings: React.FC<SettingsProps> = ({ company, onUpdate }) => {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-[#27354c] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 space-y-6">
+            <div className="bg-white dark:bg-[#1b263b] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 space-y-6">
               <h4 className="text-[11px] font-black text-emerald-600 dark:text-emerald-400 uppercase border-b border-slate-100 dark:border-white/5 pb-2">Personnalisation Document</h4>
               <div className="space-y-2">
                 <label className="text-[10px] font-bold text-slate-400 uppercase">Pied de page global</label>

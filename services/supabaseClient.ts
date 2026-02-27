@@ -9,7 +9,7 @@ const getEnv = (key: string): string => {
   }
   
   // محاولة جلب القيم من import.meta.env (Vite)
-  // @ts-ignore
+  // @ts-expect-error Vite types
   const env = import.meta.env || {};
   if (env[key]) return env[key];
   if (env[`VITE_${key}`]) return env[`VITE_${key}`];

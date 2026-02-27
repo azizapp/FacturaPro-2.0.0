@@ -28,10 +28,10 @@ const ClientStatementPDFPreview: React.FC<ClientStatementPDFPreviewProps> = ({ c
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-md overflow-hidden print:overflow-visible statement-modal-wrapper">
-      <div className="bg-white w-full max-w-5xl h-[95vh] rounded-[15px] shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-8 duration-300 print:h-auto print:w-full print:shadow-none print:rounded-none print:static print:block">
+      <div className="bg-white dark:bg-slate-900 w-full max-w-5xl h-[95vh] rounded-[15px] shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-8 duration-300 print:h-auto print:w-full print:shadow-none print:rounded-none print:static print:block border border-transparent dark:border-white/10">
         
         {/* Header - Hidden on Print */}
-        <div className="p-5 bg-slate-900 flex items-center justify-between text-white shrink-0 print:hidden">
+        <div className="p-5 bg-slate-900 dark:bg-slate-800 flex items-center justify-between text-white shrink-0 print:hidden border-b border-transparent dark:border-white/10">
           <div className="flex items-center space-x-4 ml-4">
             <div className="w-10 h-10 bg-orange-500 rounded-xl flex items-center justify-center text-white">
               <i className="fas fa-file-invoice-dollar text-xl"></i>
@@ -56,7 +56,7 @@ const ClientStatementPDFPreview: React.FC<ClientStatementPDFPreviewProps> = ({ c
         </div>
 
         {/* Scrollable Preview Area */}
-        <div className="flex-1 overflow-y-auto p-12 bg-slate-100 custom-scrollbar print:p-0 print:bg-white print:overflow-visible">
+        <div className="flex-1 overflow-y-auto p-12 bg-slate-100 dark:bg-slate-950 custom-scrollbar print:p-0 print:bg-white print:overflow-visible">
           {/* THE PRINTABLE SHEET */}
           <div className="printable-sheet mx-auto bg-white p-[15mm] shadow-2xl border border-slate-200 print:border-none print:shadow-none print:p-15mm print:m-0 w-full max-w-[900px] font-sans text-slate-900 print:max-w-none rounded-[15px]">
             

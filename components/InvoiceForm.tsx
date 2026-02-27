@@ -1,5 +1,5 @@
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Client, Product, Invoice, InvoiceItem, InvoiceStatus, Company } from '../types';
 
 interface InvoiceFormProps {
@@ -30,7 +30,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, company, i
     initialInvoice?.items || [{ id: crypto.randomUUID(), quantity: 1, price: 0, tvaRate: 20, discount: 0 }]
   );
 
-  const getNextInvoiceNumber = () => {
+  const getNextInvoiceNumber = useCallback(() => {
     const prefix = company.invoice_prefix || 'FAC-';
     const startNum = company.invoice_start_number || 1;
     
@@ -50,7 +50,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, company, i
 
     const maxNum = numbers.length > 0 ? Math.max(...numbers, startNum - 1) : startNum - 1;
     return `${prefix}${(maxNum + 1).toString().padStart(4, '0')}`;
-  };
+  }, [company.invoice_prefix, company.invoice_start_number, invoices]);
 
   // تحويل رقم الفاتورة إلى State للسماح بالتعديل في حالة وجود Conflict
   const [invoiceNumber, setInvoiceNumber] = useState(initialInvoice?.number || getNextInvoiceNumber());
@@ -58,9 +58,10 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, company, i
   // تحديث الرقم التلقائي إذا تغيرت قائمة الفواتير (مثلاً بعد مزامنة ناجحة)
   useEffect(() => {
     if (!initialInvoice && invoices.length > 0) {
+      // eslint-disable-next-line
       setInvoiceNumber(getNextInvoiceNumber());
     }
-  }, [invoices.length]);
+  }, [invoices.length, initialInvoice, getNextInvoiceNumber]);
 
   const subtotal = items.reduce((acc, item) => acc + ((item.price || 0) * (item.quantity || 0) * (1 - (item.discount || 0) / 100)), 0);
   const tvaTotal = taxEnabled 
@@ -72,10 +73,10 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, company, i
   const handleAddItem = () => setItems([...items, { id: crypto.randomUUID(), quantity: 1, price: 0, tvaRate: 20, discount: 0 }]);
   const handleRemoveItem = (id: string) => items.length > 1 && setItems(items.filter(item => item.id !== id));
 
-  const handleItemChange = (id: string, field: keyof InvoiceItem, value: any) => {
+  const handleItemChange = (id: string, field: keyof InvoiceItem, value: string | number) => {
     setItems(items.map(item => {
       if (item.id === id) {
-        let newItem = { ...item, [field]: value };
+        const newItem = { ...item, [field]: value };
         if (field === 'productId') {
           const product = products.find(p => p.id === value);
           if (product) { newItem.productName = product.name; newItem.price = product.price; }
@@ -118,7 +119,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, company, i
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
-      <div className="bg-white dark:bg-[#27354c] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5">
+      <div className="bg-white dark:bg-[#1b263b] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5">
         <h2 className="text-xl font-bold text-slate-800 dark:text-white uppercase tracking-tight mb-8">Détails de la Facture</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-12">

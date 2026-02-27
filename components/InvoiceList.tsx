@@ -1,25 +1,35 @@
 
 import React, { useState, useEffect } from 'react';
-import { Invoice, Client, InvoiceStatus, Company } from '../types';
+import { Invoice, Client, Company } from '../types';
 
 interface InvoiceListProps {
   invoices: Invoice[];
   clients: Client[];
   company: Company;
-  onRefresh: () => void;
   onExportStatement?: (clientId: string) => void;
   initialClientId?: string;
   onDeletePayment?: (invoiceId: string, paymentId: string) => void;
 }
 
-const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, onRefresh, onExportStatement, initialClientId, onDeletePayment }) => {
+const TabItem: React.FC<{ label: string; activeTab: string; onClick: (label: string) => void }> = ({ label, activeTab, onClick }) => (
+  <button
+    onClick={() => onClick(label)}
+    className={`px-4 py-2 text-sm font-medium transition-all relative ${activeTab === label ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'
+      }`}
+  >
+    {label}
+    {activeTab === label && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600"></div>}
+  </button>
+);
+
+const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, onExportStatement, initialClientId, onDeletePayment }) => {
   const [searchTermSidebar, setSearchTermSidebar] = useState('');
 
-  const activeClientsWithInvoices = clients.filter(client => {
+  const activeClientsWithInvoices = React.useMemo(() => clients.filter(client => {
     const hasInvoices = invoices.some(inv => inv.clientId === client.id);
     const matchesSearch = client.name.toLowerCase().includes(searchTermSidebar.toLowerCase());
     return hasInvoices && matchesSearch;
-  });
+  }), [clients, invoices, searchTermSidebar]);
 
   const [selectedClientId, setSelectedClientId] = useState<string>(initialClientId || activeClientsWithInvoices[0]?.id || '');
   const [activeTab, setActiveTab] = useState<string>("Vue d'ensemble");
@@ -29,18 +39,30 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const pageSizeOptions = [10, 20, 30, 50, 100, 200];
 
-  // Reset pagination when tab or client changes
-  useEffect(() => {
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
     setCurrentPage(1);
-  }, [activeTab, selectedClientId, itemsPerPage]);
+  };
+
+  const handleClientSelect = (clientId: string) => {
+    setSelectedClientId(clientId);
+    setCurrentPage(1);
+  };
+
+  const handleItemsPerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setItemsPerPage(Number(e.target.value));
+    setCurrentPage(1);
+  };
 
   useEffect(() => {
-    if (initialClientId) {
+    if (initialClientId && initialClientId !== selectedClientId) {
       setSelectedClientId(initialClientId);
+      setCurrentPage(1);
     } else if (!selectedClientId && activeClientsWithInvoices.length > 0) {
       setSelectedClientId(activeClientsWithInvoices[0].id);
+      setCurrentPage(1);
     }
-  }, [initialClientId, activeClientsWithInvoices]);
+  }, [initialClientId, activeClientsWithInvoices, selectedClientId]);
 
   const selectedClient = clients.find(c => c.id === selectedClientId);
   const clientInvoices = invoices.filter(inv => inv.clientId === selectedClientId);
@@ -72,11 +94,12 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
     }))
   ].sort((a, b) => a.timestamp - b.timestamp);
 
-  let runningBalance = 0;
-  const operationsWithBalance = operations.map(op => {
-    runningBalance += (op.debit - op.credit);
-    return { ...op, balance: runningBalance };
-  });
+  const operationsWithBalance = operations.reduce((acc, op) => {
+    const lastBalance = acc.length > 0 ? acc[acc.length - 1].balance : 0;
+    const newBalance = lastBalance + (op.debit - op.credit);
+    acc.push({ ...op, balance: newBalance });
+    return acc;
+  }, [] as (typeof operations[0] & { balance: number })[]);
 
   const totalInvoiced = clientInvoices.reduce((sum, inv) => sum + inv.grandTotal, 0);
   const totalCollected = clientPayments.reduce((sum, p) => sum + p.amount, 0);
@@ -84,7 +107,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
   const soldeDebiteur = totalInvoiced - totalCollected;
 
   const getPaginatedData = () => {
-    let data: any[] = [];
+    let data: (Invoice | (typeof clientPayments)[0])[] = [];
     if (activeTab === 'Factures') data = clientInvoices;
     else if (activeTab === 'Paiements') data = clientPayments;
     
@@ -166,14 +189,18 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
       // Load html2canvas and jsPDF (UMD) from CDN if not already loaded
       // html2canvas global: html2canvas
       // jspdf UMD exposes window.jspdf with .jsPDF
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if (!(window as any).html2canvas) {
         await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if (!(window as any).jspdf) {
         await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const html2canvas = (window as any).html2canvas;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { jsPDF } = (window as any).jspdf;
 
       // Render container to canvas
@@ -230,32 +257,16 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
     }
   };
 
-  const handleShareEmail = () => {
-    if (!selectedClient) return;
-    const subject = encodeURIComponent(`Relevé de Compte - ${company.name}`);
-    const body = encodeURIComponent(`Bonjour ${selectedClient.name},\n\nVeuillez trouver ci-joint votre relevé de compte.\nSolde débiteur: ${soldeDebiteur.toLocaleString()} MAD.\n\nCordialement,\n${company.name}`);
-    window.location.href = `mailto:${selectedClient.email}?subject=${subject}&body=${body}`;
-  };
-
   const handleDelete = (invoiceId: string, paymentId: string) => {
     if (onDeletePayment) {
       onDeletePayment(invoiceId, paymentId);
     }
   };
 
-  const TabItem: React.FC<{ label: string }> = ({ label }) => (
-    <button
-      onClick={() => setActiveTab(label)}
-      className={`px-4 py-2 text-sm font-medium transition-all relative ${activeTab === label ? 'text-indigo-600' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'
-        }`}
-    >
-      {label}
-      {activeTab === label && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600"></div>}
-    </button>
-  );
+
 
   return (
-    <div className="flex h-[calc(100vh-160px)] bg-white dark:bg-[#27354c] border border-slate-200 dark:border-white/5 rounded-[15px] overflow-hidden shadow-sm transition-colors duration-300">
+    <div className="flex h-[calc(100vh-160px)] bg-white dark:bg-[#1b263b] border border-slate-200 dark:border-white/5 rounded-[15px] overflow-hidden shadow-sm transition-colors duration-300">
       <div className="w-80 border-r border-slate-200 dark:border-white/5 flex flex-col bg-slate-50/30 dark:bg-slate-900/20">
         <div className="p-4 border-b border-slate-200 dark:border-white/5 bg-white dark:bg-slate-900/40 space-y-3">
           <div className="flex items-center justify-between">
@@ -286,7 +297,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
               return (
                 <div
                   key={client.id}
-                  onClick={() => setSelectedClientId(client.id)}
+                  onClick={() => handleClientSelect(client.id)}
                   className={`p-4 border-b border-slate-100 dark:border-white/5 cursor-pointer transition-colors flex items-center space-x-3 ${selectedClientId === client.id ? 'bg-white dark:bg-white/5 shadow-sm ring-1 ring-inset ring-slate-200 dark:ring-white/10 z-10' : 'hover:bg-white dark:hover:bg-white/5'
                     }`}
                 >
@@ -313,7 +324,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col bg-white dark:bg-[#27354c] overflow-hidden">
+      <div className="flex-1 flex flex-col bg-white dark:bg-[#1b263b] overflow-hidden">
         {selectedClient ? (
           <>
             <div className="p-6 border-b border-slate-200 dark:border-white/5">
@@ -341,10 +352,10 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
               </div>
 
               <div className="flex space-x-4 -mb-[25px]">
-                <TabItem label="Vue d'ensemble" />
-                <TabItem label="Factures" />
-                <TabItem label="Paiements" />
-                <TabItem label="Relevé" />
+                <TabItem label="Vue d'ensemble" activeTab={activeTab} onClick={handleTabChange} />
+                <TabItem label="Factures" activeTab={activeTab} onClick={handleTabChange} />
+                <TabItem label="Paiements" activeTab={activeTab} onClick={handleTabChange} />
+                <TabItem label="Relevé" activeTab={activeTab} onClick={handleTabChange} />
               </div>
             </div>
 
@@ -398,9 +409,9 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-50 dark:divide-white/5">
-                        {activeTab === 'Factures' ? paginatedData.map((inv: any) => {
-                          const paid = (inv.payments || []).reduce((sum: any, p: any) => sum + p.amount, 0);
-                          const pieces = inv.items.reduce((sum: any, item: any) => sum + item.quantity, 0);
+                        {activeTab === 'Factures' ? (paginatedData as Invoice[]).map((inv) => {
+                          const paid = (inv.payments || []).reduce((sum, p) => sum + p.amount, 0);
+                          const pieces = inv.items.reduce((sum, item) => sum + item.quantity, 0);
                           return (
                             <tr key={inv.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
                               <td className="px-6 py-4 text-xs text-slate-500 dark:text-slate-400 text-left">{new Date(inv.date).toLocaleDateString('fr-FR')}</td>
@@ -412,7 +423,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
                               </td>
                             </tr>
                           );
-                        }) : paginatedData.map((p: any) => (
+                        }) : (paginatedData as typeof clientPayments).map((p) => (
                           <tr key={p.id} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
                             <td className="px-6 py-4 text-xs text-slate-500 dark:text-slate-400 text-left">{new Date(p.date).toLocaleDateString('fr-FR')}</td>
                             <td className="px-6 py-4 text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase text-left">{p.invoiceNumber}</td>
@@ -442,7 +453,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, clients, company, o
                         <label className="text-[9px] font-black uppercase text-slate-400 tracking-tighter whitespace-nowrap">Lignes par page:</label>
                         <select 
                           value={itemsPerPage}
-                          onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                          onChange={handleItemsPerPageChange}
                           className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-lg text-[10px] font-black px-2 py-1 outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white cursor-pointer"
                         >
                           {pageSizeOptions.map(option => (

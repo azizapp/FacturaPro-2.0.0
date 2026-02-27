@@ -28,7 +28,13 @@ export const generateFollowUpEmail = async (invoice: Invoice, clientData: Client
   }
 };
 
-export const summarizeInvoices = async (invoices: Invoice[]): Promise<any> => {
+export interface InvoiceSummary {
+  summary: string;
+  insights: string[];
+  recommendation: string;
+}
+
+export const summarizeInvoices = async (invoices: Invoice[]): Promise<InvoiceSummary> => {
   const total = invoices.reduce((sum, inv) => sum + inv.grandTotal, 0);
   const totalHt = invoices.reduce((sum, inv) => sum + (inv.subtotal || 0), 0);
   const totalTva = invoices.reduce((sum, inv) => sum + (inv.tvaTotal || 0), 0);

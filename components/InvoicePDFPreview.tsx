@@ -1,6 +1,9 @@
 
 import React, { useState } from 'react';
-import { Invoice, Company, Client, InvoiceStatus } from '../types';
+import { Invoice, Company, Client } from '../types';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+declare const html2pdf: any;
 
 interface InvoicePDFPreviewProps {
   invoices: Invoice[];
@@ -34,7 +37,6 @@ const InvoicePDFPreview: React.FC<InvoicePDFPreviewProps> = ({ invoices, company
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
     try {
-      // @ts-ignore
       const pdfBlob = await html2pdf().from(element).set(opt).output('blob');
       if (navigator.canShare && navigator.canShare({ files: [new File([pdfBlob], filename, { type: 'application/pdf' })] })) {
         const file = new File([pdfBlob], filename, { type: 'application/pdf' });
@@ -71,7 +73,6 @@ const InvoicePDFPreview: React.FC<InvoicePDFPreviewProps> = ({ invoices, company
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
     try {
-      // @ts-ignore
       await html2pdf().from(element).set(opt).save();
     } catch (error) {
       console.error("Erreur PDF:", error);
@@ -81,17 +82,17 @@ const InvoicePDFPreview: React.FC<InvoicePDFPreviewProps> = ({ invoices, company
   };
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md overflow-hidden print:overflow-visible font-sans text-slate-900 invoice-modal-wrapper">
-      <div className="bg-white w-full max-w-6xl h-[95vh] rounded-[15px] shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 print:h-auto print:w-full print:shadow-none print:rounded-none print:static print:block relative">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md overflow-hidden print:overflow-visible font-sans text-slate-900 dark:text-white invoice-modal-wrapper">
+      <div className="bg-white dark:bg-slate-900 w-full max-w-6xl h-[95vh] rounded-[15px] shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 print:h-auto print:w-full print:shadow-none print:rounded-none print:static print:block relative border border-transparent dark:border-white/10">
 
         {/* Barre d'outils */}
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-white shrink-0 print:hidden relative z-20">
+        <div className="px-6 py-4 border-b border-slate-100 dark:border-white/10 flex items-center justify-between bg-white dark:bg-slate-800 shrink-0 print:hidden relative z-20">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-md">
               <i className="fas fa-file-pdf text-lg"></i>
             </div>
             <div>
-              <h4 className="text-sm font-black text-slate-800 uppercase tracking-tight">Exportation PDF</h4>
+              <h4 className="text-sm font-black text-slate-800 dark:text-white uppercase tracking-tight">Exportation PDF</h4>
               <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">{invoices.length} document(s)</p>
             </div>
           </div>
@@ -108,14 +109,14 @@ const InvoicePDFPreview: React.FC<InvoicePDFPreviewProps> = ({ invoices, company
               <i className="fas fa-download mr-2"></i>
               Tél.
             </button>
-            <button onClick={onClose} className="px-4 py-2 bg-slate-100 rounded-lg font-bold text-[10px] uppercase tracking-widest text-slate-400 hover:bg-slate-200 transition-colors">
+            <button onClick={onClose} className="px-4 py-2 bg-slate-100 dark:bg-slate-700 rounded-lg font-bold text-[10px] uppercase tracking-widest text-slate-400 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
               Fermer
             </button>
           </div>
         </div>
 
         {/* Zone de prévisualisation */}
-        <div className="flex-1 overflow-y-auto bg-slate-100 p-6 custom-scrollbar print:p-0 print:bg-white print:overflow-visible">
+        <div className="flex-1 overflow-y-auto bg-slate-100 dark:bg-slate-950 p-6 custom-scrollbar print:p-0 print:bg-white print:overflow-visible">
           <div className="printable-container mx-auto print:w-full">
             {invoices.map((invoice, index) => {
               const client = clients.find(c => c.id === invoice.clientId);

@@ -16,7 +16,8 @@ export const db = {
   },
 
   updateCompanySettings: async (company: Company): Promise<void> => {
-    const { id, ...updates } = company;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id: _id, ...updates } = company;
     
     const { data } = await supabase.from('Factur_settings').select('id').limit(1).maybeSingle();
     
@@ -66,6 +67,7 @@ export const db = {
 
   // --- Clients ---
   getClients: async (): Promise<Client[]> => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let allClients: any[] = [];
     let from = 0;
     let to = 999;
@@ -100,7 +102,8 @@ export const db = {
   },
 
   addClient: async (client: Client): Promise<Client> => {
-    const { id, balance, ...clientToInsert } = client;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id: _id, balance: _balance, ...clientToInsert } = client;
     const { data, error } = await supabase
       .from('customers')
       .insert([clientToInsert])
@@ -112,7 +115,8 @@ export const db = {
   },
 
   updateClient: async (client: Client): Promise<Client> => {
-    const { id, balance, created_at, ...updates } = client;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id, balance: _balance, created_at: _created_at, ...updates } = client;
     const { data, error } = await supabase
       .from('customers')
       .update(updates)
@@ -145,7 +149,8 @@ export const db = {
   },
 
   addProduct: async (product: Product): Promise<Product> => {
-    const { id, ...prodToInsert } = product;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id: _id, ...prodToInsert } = product;
     const { data, error } = await supabase
       .from('products')
       .insert([prodToInsert])
@@ -185,15 +190,17 @@ export const db = {
       adjustmentAmount: parseFloat(inv.adjustment_amount || 0),
       grandTotal: parseFloat(inv.grand_total),
       paymentMethod: inv.payment_method,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       items: (inv.invoice_items || []).map((item: any) => ({
         id: item.id,
         productId: item.product_id,
         productName: item.product_name,
         quantity: parseFloat(item.quantity),
         price: parseFloat(item.price),
-        tva_rate: parseFloat(item.tva_rate),
+        tvaRate: parseFloat(item.tva_rate),
         discount: parseFloat(item.discount)
       })),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       payments: (inv.payments || []).map((p: any) => ({
         id: p.id,
         invoiceId: p.invoice_id,

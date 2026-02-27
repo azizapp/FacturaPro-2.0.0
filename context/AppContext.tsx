@@ -4,7 +4,7 @@ import { Invoice, Client, Product, Company, Payment, InvoiceStatus, User } from 
 import { db } from '../services/supabaseService';
 import { dataSyncService } from '../services/dataSyncService';
 import { supabase } from '../services/supabaseClient';
-
+// هذا تعليق سطر واحد
 interface AppContextType {
     invoices: Invoice[];
     clients: Client[];
@@ -89,6 +89,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         });
 
         return () => subscription.unsubscribe();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const toggleTheme = () => {

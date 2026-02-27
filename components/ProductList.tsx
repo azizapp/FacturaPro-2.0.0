@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Product } from '../types';
 
 interface ProductListProps {
@@ -8,7 +8,7 @@ interface ProductListProps {
   onEditProduct: (id: string) => void;
   onDeleteProduct: (id: string) => void;
 }
-
+// هذا تعليق سطر واحد
 const ProductList: React.FC<ProductListProps> = ({ products, onAddProduct, onEditProduct, onDeleteProduct }) => {
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -16,9 +16,10 @@ const ProductList: React.FC<ProductListProps> = ({ products, onAddProduct, onEdi
   const pageSizeOptions = [10, 20, 30, 50, 100, 200];
 
   // Reset pagination when itemsPerPage changes
-  useEffect(() => {
+  const handleItemsPerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setItemsPerPage(Number(e.target.value));
     setCurrentPage(1);
-  }, [itemsPerPage]);
+  };
 
   // Paginated Data
   const totalPages = Math.ceil(products.length / itemsPerPage);
@@ -43,8 +44,8 @@ const ProductList: React.FC<ProductListProps> = ({ products, onAddProduct, onEdi
         </button>
       </div>
 
-      <div className="bg-white dark:bg-[#27354c] rounded-[20px] shadow-xl border border-slate-200 dark:border-white/5 overflow-hidden flex flex-col min-h-[500px]">
-        <div className="flex-1 overflow-auto custom-scrollbar relative">
+      <div className="bg-white dark:bg-[#1b263b] rounded-[20px] shadow-xl border border-slate-200 dark:border-white/5 overflow-hidden flex flex-col">
+        <div className="overflow-x-auto custom-scrollbar relative">
           <table className="w-full text-left border-collapse min-w-[700px]">
             <thead className="sticky top-0 z-20 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-white/10 shadow-sm">
               <tr>
@@ -122,7 +123,7 @@ const ProductList: React.FC<ProductListProps> = ({ products, onAddProduct, onEdi
               <label className="text-[9px] font-black uppercase text-slate-400 tracking-tighter whitespace-nowrap">Lignes par page:</label>
               <select 
                 value={itemsPerPage}
-                onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                onChange={handleItemsPerPageChange}
                 className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-lg text-[10px] font-black px-2 py-1 outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white cursor-pointer"
               >
                 {pageSizeOptions.map(option => (

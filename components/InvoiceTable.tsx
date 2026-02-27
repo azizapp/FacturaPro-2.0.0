@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Invoice, Client, InvoiceStatus } from '../types';
 
 interface InvoiceTableProps {
@@ -38,10 +38,10 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const pageSizeOptions = [10, 20, 30, 50, 100, 200];
 
-  const getClientName = (clientId: string) => {
+  const getClientName = useCallback((clientId: string) => {
     const client = clients.find(c => c.id === clientId);
     return client ? client.name : 'Client inconnu';
-  };
+  }, [clients]);
 
   const getDateRange = (filter: string) => {
     const today = new Date();
@@ -103,9 +103,9 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
     }
 
     return filtered.sort((a, b) => {
-      let aValue: any, bValue: any;
+      let aValue: string | number | number, bValue: string | number | number;
       switch (sortField) {
-        case 'date': aValue = new Date(a.date); bValue = new Date(b.date); break;
+        case 'date': aValue = new Date(a.date).getTime(); bValue = new Date(b.date).getTime(); break;
         case 'number': aValue = a.number; bValue = b.number; break;
         case 'client': aValue = getClientName(a.clientId).toLowerCase(); bValue = getClientName(b.clientId).toLowerCase(); break;
         case 'status': aValue = a.status.toLowerCase(); bValue = b.status.toLowerCase(); break;
@@ -116,12 +116,45 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
       if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
       return 0;
     });
-  }, [invoices, sortField, sortDirection, clients, selectedStatus, searchTerm, dateFilter, dateFrom, dateTo]);
+  }, [invoices, sortField, sortDirection, selectedStatus, searchTerm, dateFilter, dateFrom, dateTo, getClientName]);
 
   // Reset pagination when filters or page size change
-  useEffect(() => {
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
     setCurrentPage(1);
-  }, [searchTerm, selectedStatus, dateFilter, dateFrom, dateTo, sortField, itemsPerPage]);
+  };
+
+  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedStatus(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleDateFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setDateFilter(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleDateFromChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDateFrom(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleDateToChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDateTo(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleItemsPerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setItemsPerPage(Number(e.target.value));
+    setCurrentPage(1);
+  };
+
+  const handleResetFilters = () => {
+    setSearchTerm('');
+    setSelectedStatus('');
+    setDateFilter('');
+    setCurrentPage(1);
+  };
 
   // Paginated Data
   const totalPages = Math.ceil(filteredAndSortedInvoices.length / itemsPerPage);
@@ -137,6 +170,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
       setSortField(field);
       setSortDirection('desc');
     }
+    setCurrentPage(1);
   };
 
   const getStatusStyle = (status: string) => {
@@ -148,7 +182,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
   };
 
   return (
-    <div className="bg-white dark:bg-[#27354c] rounded-[20px] shadow-xl overflow-hidden border border-slate-200 dark:border-white/5 flex flex-col min-h-[500px]">
+    <div className="bg-white dark:bg-[#1b263b] rounded-[20px] shadow-xl overflow-hidden border border-slate-200 dark:border-white/5 flex flex-col">
       
       {/* Search & Filters Toolbar */}
       <div className="p-4 border-b border-slate-100 dark:border-white/5 bg-slate-50/30 dark:bg-slate-900/40 flex flex-wrap items-center justify-between gap-4 shrink-0">
@@ -157,7 +191,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
           <input
             type="text"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={handleSearchChange}
             placeholder="Rechercher une facture ou un client..."
             className="w-full pl-11 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all dark:text-white"
           />
@@ -178,7 +212,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
           
           {(searchTerm || selectedStatus || dateFilter) && (
             <button
-              onClick={() => { setSearchTerm(''); setSelectedStatus(''); setDateFilter(''); }}
+              onClick={handleResetFilters}
               className="p-2.5 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-xl transition-colors"
               title="Réinitialiser"
             >
@@ -195,7 +229,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
             <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Statut</label>
             <select
               value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
+              onChange={handleStatusChange}
               className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/5 rounded-lg text-xs font-bold outline-none dark:text-white"
             >
               <option value="">Tous les statuts</option>
@@ -206,7 +240,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
             <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Période</label>
             <select
               value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
+              onChange={handleDateFilterChange}
               className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/5 rounded-lg text-xs font-bold outline-none dark:text-white"
             >
               <option value="">Toutes les dates</option>
@@ -221,11 +255,11 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
             <div className="grid grid-cols-2 gap-2">
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Du</label>
-                <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="w-full px-2 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/5 rounded-lg text-[10px] font-bold dark:text-white" />
+                <input type="date" value={dateFrom} onChange={handleDateFromChange} className="w-full px-2 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/5 rounded-lg text-[10px] font-bold dark:text-white" />
               </div>
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Au</label>
-                <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="w-full px-2 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/5 rounded-lg text-[10px] font-bold dark:text-white" />
+                <input type="date" value={dateTo} onChange={handleDateToChange} className="w-full px-2 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/5 rounded-lg text-[10px] font-bold dark:text-white" />
               </div>
             </div>
           )}
@@ -366,7 +400,7 @@ const InvoiceTable: React.FC<InvoiceTableProps> = ({
             <label className="text-[9px] font-black uppercase text-slate-400 tracking-tighter whitespace-nowrap">Lignes par page:</label>
             <select 
               value={itemsPerPage}
-              onChange={(e) => setItemsPerPage(Number(e.target.value))}
+              onChange={handleItemsPerPageChange}
               className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-lg text-[10px] font-black px-2 py-1 outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all dark:text-white cursor-pointer"
             >
               {pageSizeOptions.map(option => (

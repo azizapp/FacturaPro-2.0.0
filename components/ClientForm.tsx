@@ -45,18 +45,19 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialClient, onSubmit, onCanc
   // Keep state in sync if initialClient changes externally
   useEffect(() => {
     if (initialClient) {
+      // eslint-disable-next-line
       setFormData({ ...initialClient });
     }
   }, [initialClient]);
 
-  const handleInputChange = useCallback((field: keyof Client, value: any) => {
+  const handleInputChange = useCallback((field: keyof Client, value: string | boolean | number) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
 
     if (field === 'user_email') {
-      localStorage.setItem('user_email_preference', value);
+      localStorage.setItem('user_email_preference', value as string);
     }
   }, []);
 
@@ -68,7 +69,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialClient, onSubmit, onCanc
     onSubmit(formData);
   };
 
-  const renderInput = (field: keyof Client, value: any, props: React.InputHTMLAttributes<HTMLInputElement>) => (
+  const renderInput = (field: keyof Client, value: string | number | undefined, props: React.InputHTMLAttributes<HTMLInputElement>) => (
     <input
       {...props}
       value={value || ''}
@@ -82,7 +83,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialClient, onSubmit, onCanc
       <div className="flex items-center space-x-4 mb-4">
         <button
           onClick={onCancel}
-          className="w-10 h-10 flex items-center justify-center rounded-full bg-white dark:bg-[#27354c] border border-slate-200 dark:border-white/10 text-slate-400 hover:text-indigo-600 hover:border-indigo-200 shadow-sm transition-all"
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-white dark:bg-[#1b263b] border border-slate-200 dark:border-white/10 text-slate-400 hover:text-indigo-600 hover:border-indigo-200 shadow-sm transition-all"
         >
           <i className="fas fa-arrow-left"></i>
         </button>
@@ -98,7 +99,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialClient, onSubmit, onCanc
 
       <form onSubmit={handleSubmit} className="space-y-8 pb-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="bg-white dark:bg-[#27354c] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 space-y-6">
+          <div className="bg-white dark:bg-[#1b263b] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 space-y-6">
             <h4 className="text-xs font-black uppercase text-indigo-600 dark:text-indigo-400 border-b border-indigo-50 dark:border-white/5 pb-2 flex items-center">
               <i className="fas fa-id-card mr-2"></i> Identité & Responsables
             </h4>
@@ -151,7 +152,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialClient, onSubmit, onCanc
             </div>
           </div>
 
-          <div className="bg-white dark:bg-[#27354c] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 space-y-6">
+          <div className="bg-white dark:bg-[#1b263b] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 space-y-6">
             <h4 className="text-xs font-black uppercase text-emerald-600 dark:text-emerald-400 border-b border-emerald-50 dark:border-white/5 pb-2 flex items-center">
               <i className="fas fa-phone-alt mr-2"></i> Coordonnées de Contact
             </h4>
@@ -191,7 +192,7 @@ const ClientForm: React.FC<ClientFormProps> = ({ initialClient, onSubmit, onCanc
             </div>
           </div>
 
-          <div className="bg-white dark:bg-[#27354c] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 space-y-6 lg:col-span-2">
+          <div className="bg-white dark:bg-[#1b263b] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5 space-y-6 lg:col-span-2">
             <h4 className="text-xs font-black uppercase text-orange-500 dark:text-orange-400 border-b border-orange-50 dark:border-white/5 pb-2 flex items-center">
               <i className="fas fa-map-marked-alt mr-2"></i> Localisation Géographique
             </h4>

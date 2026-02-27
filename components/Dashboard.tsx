@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Invoice, Client, InvoiceStatus } from '../types';
+import { Invoice, Client } from '../types';
 import { summarizeInvoices } from '../services/geminiService';
 import { useAppContext } from '../context/AppContext';
 
@@ -10,9 +10,15 @@ interface DashboardProps {
   clients: Client[];
 }
 
+interface AiAnalysisResult {
+  summary: string;
+  insights: string[];
+  recommendation: string;
+}
+
 const Dashboard: React.FC<DashboardProps> = ({ invoices, clients }) => {
   const { theme } = useAppContext();
-  const [aiAnalysis, setAiAnalysis] = useState<any>(null);
+  const [aiAnalysis, setAiAnalysis] = useState<AiAnalysisResult | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
 
   const stats = useMemo(() => {
