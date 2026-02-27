@@ -191,7 +191,7 @@ export const db = {
         productName: item.product_name,
         quantity: parseFloat(item.quantity),
         price: parseFloat(item.price),
-        tvaRate: parseFloat(item.tva_rate),
+        tva_rate: parseFloat(item.tva_rate),
         discount: parseFloat(item.discount)
       })),
       payments: (inv.payments || []).map((p: any) => ({

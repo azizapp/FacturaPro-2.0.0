@@ -8,7 +8,7 @@ interface ProductListProps {
   onEditProduct: (id: string) => void;
   onDeleteProduct: (id: string) => void;
 }
-// هذا تعليق سطر واحد
+
 const ProductList: React.FC<ProductListProps> = ({ products, onAddProduct, onEditProduct, onDeleteProduct }) => {
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -43,8 +43,8 @@ const ProductList: React.FC<ProductListProps> = ({ products, onAddProduct, onEdi
         </button>
       </div>
 
-      <div className="bg-white dark:bg-[#27354c] rounded-[20px] shadow-xl border border-slate-200 dark:border-white/5 overflow-hidden flex flex-col">
-        <div className="overflow-x-auto custom-scrollbar relative">
+      <div className="bg-white dark:bg-[#27354c] rounded-[20px] shadow-xl border border-slate-200 dark:border-white/5 overflow-hidden flex flex-col min-h-[500px]">
+        <div className="flex-1 overflow-auto custom-scrollbar relative">
           <table className="w-full text-left border-collapse min-w-[700px]">
             <thead className="sticky top-0 z-20 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-white/10 shadow-sm">
               <tr>

@@ -12,7 +12,7 @@ export enum PaymentMethod {
   CHECK = 'Chèque',
   TRANSFER = 'Virement'
 }
-// هذا تعليق سطر واحد
+
 export interface Payment {
   id: string;
   invoiceId: string;

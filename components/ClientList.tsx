@@ -10,7 +10,7 @@ interface ClientListProps {
   onViewHistory: (id: string) => void;
   onAddClient: () => void;
 }
-// هذا تعليق سطر واحد
+
 const ClientList: React.FC<ClientListProps> = ({ clients, invoices, onEditClient, onDeleteClient, onViewHistory, onAddClient }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
