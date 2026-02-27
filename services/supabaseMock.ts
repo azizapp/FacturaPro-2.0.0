@@ -161,7 +161,7 @@ export const db = {
     const { data, error } = await supabase
       .from('invoices')
       .select(`
-        id, number, date, due_date, po_number, customer_id, status, notes, subtotal, tva_total, discount_amount, adjustment_amount, grand_total,
+        id, number, date, due_date, po_number, customer_id, status, notes, subtotal, tva_total, discount_amount, adjustment_amount, grand_total, payment_method,
         invoice_items (id, product_id, product_name, quantity, price, tva_rate, discount),
         payments (id, invoice_id, amount, date, method, check_image, note)
       `)
@@ -184,6 +184,7 @@ export const db = {
       discountAmount: parseFloat(inv.discount_amount || 0),
       adjustmentAmount: parseFloat(inv.adjustment_amount || 0),
       grandTotal: parseFloat(inv.grand_total),
+      paymentMethod: inv.payment_method,
       items: (inv.invoice_items || []).map((item: any) => ({
         id: item.id,
         productId: item.product_id,
@@ -220,7 +221,8 @@ export const db = {
         tva_total: invoice.tvaTotal,
         discount_amount: invoice.discountAmount,
         adjustment_amount: invoice.adjustmentAmount,
-        grand_total: invoice.grandTotal
+        grand_total: invoice.grandTotal,
+        payment_method: invoice.paymentMethod
       }])
       .select('id')
       .single();
@@ -258,7 +260,8 @@ export const db = {
         tva_total: invoice.tvaTotal,
         discount_amount: invoice.discountAmount || 0,
         adjustment_amount: invoice.adjustmentAmount || 0,
-        grand_total: invoice.grandTotal
+        grand_total: invoice.grandTotal,
+        payment_method: invoice.paymentMethod
       })
       .eq('id', invoice.id);
 

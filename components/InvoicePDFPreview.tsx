@@ -202,7 +202,7 @@ const InvoicePDFPreview: React.FC<InvoicePDFPreviewProps> = ({ invoices, company
                           </div>
                           <div>
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Règlement</p>
-                            <p className="text-sm font-black text-[#1a2b5e]">Chèque / Virement</p>
+                            <p className="text-sm font-black text-[#1a2b5e]">{invoice.paymentMethod || "Virement"}</p>
                           </div>
                         </div>
                         <div className="space-y-1">

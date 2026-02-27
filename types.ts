@@ -97,6 +97,7 @@ export interface Invoice {
   adjustmentAmount: number;
   grandTotal: number;
   payments?: Payment[];
+  paymentMethod?: string;
 }
 export interface User {
   id: string;

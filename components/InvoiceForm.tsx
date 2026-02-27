@@ -21,6 +21,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, company, i
   const [invoiceDate, setInvoiceDate] = useState(initialInvoice?.date || new Date().toISOString().split('T')[0]);
   const [dueDate, setDueDate] = useState(initialInvoice?.dueDate || '');
   const [poNumber, setPoNumber] = useState(initialInvoice?.poNumber || '');
+  const [paymentMethod, setPaymentMethod] = useState<string>(initialInvoice?.paymentMethod || 'Virement');
   const [taxEnabled, setTaxEnabled] = useState<boolean>(initialInvoice?.taxEnabled ?? true);
   const [discountAmount, setDiscountAmount] = useState<number>(initialInvoice?.discountAmount || 0);
   const [adjustmentAmount, setAdjustmentAmount] = useState<number>(initialInvoice?.adjustmentAmount || 0);
@@ -109,7 +110,8 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, company, i
       discountAmount, 
       adjustmentAmount, 
       grandTotal,
-      payments: initialInvoice?.payments || []
+      payments: initialInvoice?.payments || [],
+      paymentMethod
     };
     onSubmit(invoice);
   };
@@ -119,7 +121,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, company, i
       <div className="bg-white dark:bg-[#27354c] p-8 rounded-[15px] shadow-sm border border-slate-200 dark:border-white/5">
         <h2 className="text-xl font-bold text-slate-800 dark:text-white uppercase tracking-tight mb-8">Détails de la Facture</h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-12">
           <div className="md:col-span-1">
             <label className="text-[10px] font-bold text-slate-400 uppercase mb-2 block">N° Facture</label>
             <input 
@@ -151,6 +153,16 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ clients, products, company, i
           <div><label className="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Date</label><input type="date" value={invoiceDate} onChange={(e) => setInvoiceDate(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 rounded-[8px] px-4 py-3 text-xs font-bold dark:text-white" /></div>
           <div><label className="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Échéance</label><input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 rounded-[8px] px-4 py-3 text-xs font-bold dark:text-white" /></div>
           <div><label className="text-[10px] font-bold text-slate-400 uppercase mb-2 block">BC</label><input type="text" value={poNumber} onChange={(e) => setPoNumber(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 rounded-[8px] px-4 py-3 text-xs font-bold dark:text-white" placeholder="N° Commande" /></div>
+          <div>
+            <label className="text-[10px] font-bold text-slate-400 uppercase mb-2 block">Règlement</label>
+            <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-white/5 rounded-[8px] px-4 py-3 text-xs font-bold dark:text-white outline-none">
+              <option value="Virement">Virement</option>
+              <option value="Chèque">Chèque</option>
+              <option value="Espèces">Espèces</option>
+              <option value="Carte Bancaire">Carte Bancaire</option>
+              <option value="Prélèvement">Prélèvement</option>
+            </select>
+          </div>
         </div>
 
         <div className="space-y-4 mb-12">
