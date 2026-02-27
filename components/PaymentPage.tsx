@@ -69,7 +69,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ invoices, clients, onPaymentA
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="bg-white dark:bg-[#27354c] rounded-[20px] shadow-xl border border-slate-200 dark:border-white/5 overflow-hidden flex flex-col min-h-[500px]">
+      <div className="bg-white dark:bg-[#27354c] rounded-[20px] shadow-xl border border-slate-200 dark:border-white/5 overflow-hidden flex flex-col">
         <div className="p-4 border-b border-slate-100 dark:border-white/5 bg-slate-50/30 dark:bg-slate-900/40 space-y-4 shrink-0">
           <div className="flex justify-between items-center">
              <h3 className="text-xl font-black text-slate-800 dark:text-white uppercase tracking-tight">Gestion des Encaissements</h3>
@@ -90,7 +90,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ invoices, clients, onPaymentA
           </div>
         </div>
 
-        <div className="flex-1 overflow-auto custom-scrollbar relative">
+        <div className="overflow-x-auto custom-scrollbar relative">
           <table className="w-full text-left border-collapse min-w-[800px]">
             <thead className="sticky top-0 z-20 bg-slate-50 dark:bg-slate-900 border-b border-slate-100 dark:border-white/10 shadow-sm">
               <tr>
@@ -273,7 +273,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ invoices, clients, onPaymentA
                   </select>
                 </div>
               </div>
-              // هذا تعليق سطر واحد
+              {/* // هذا تعليق سطر واحد */}
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Notes / Référence</label>
                 <input 
