@@ -101,8 +101,8 @@ const Dashboard: React.FC<DashboardProps> = ({ invoices, clients }) => {
               Performance Annuelle
             </h3>
           </div>
-          <div className="flex-1 w-full min-h-0">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="flex-1 w-full min-h-[300px] relative">
+            <ResponsiveContainer width="100%" height="100%" debounce={50}>
               <AreaChart data={monthlyData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorAmt" x1="0" y1="0" x2="0" y2="1">
