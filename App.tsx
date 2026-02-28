@@ -17,7 +17,8 @@ import ClientStatementPDFPreview from './components/ClientStatementPDFPreview';
 import DeleteConfirmationModal from './components/DeleteConfirmationModal';
 import Login from './components/Login';
 import { useAppContext } from './context/AppContext';
-// هذا تعليق سطر واحد
+import { InvoiceStatus } from './types';
+
 const App: React.FC = () => {
   const {
     invoices, clients, products, company, isLoading, theme, user, toggleTheme, logout, refreshUserData,
@@ -64,6 +65,20 @@ const App: React.FC = () => {
     setItemToDelete(null);
   };
 
+  const viewNames: Record<string, string> = {
+    dashboard: 'Tableau de bord',
+    invoices: 'Factures',
+    ledger: 'Grand Livre',
+    clients: 'Clients',
+    products: 'Produits',
+    payments: 'Paiements',
+    settings: 'Paramètres',
+    'invoice-detail': 'Détails Facture',
+    'client-form': 'Formulaire Client',
+    'invoice-form': 'Formulaire Facture',
+    'product-form': 'Formulaire Produit'
+  };
+
   const renderContent = () => {
     if (isLoading) return <div className="flex flex-col items-center justify-center h-full space-y-4">
       <div className="w-12 h-12 border-4 border-indigo-600/20 border-t-indigo-600 rounded-full animate-spin"></div>
@@ -105,11 +120,10 @@ const App: React.FC = () => {
       case 'products': return <ProductList products={products} onAddProduct={() => { setSelectedProductId(null); setActiveView('product-form'); }} onEditProduct={(id) => { setSelectedProductId(id); setActiveView('product-form'); }} onDeleteProduct={(id) => setItemToDelete({ id, type: 'product' })} />;
       case 'payments': return <PaymentPage invoices={invoices} clients={clients} onPaymentAdded={addPayment} />;
       case 'settings': return <Settings company={company} onUpdate={updateCompany} />;
-      case 'invoice-detail': {
+      case 'invoice-detail':
         const inv = invoices.find(i => i.id === selectedInvoiceId);
         const cli = clients.find(c => c.id === inv?.clientId);
         return inv && cli ? <InvoiceDetailView invoice={inv} client={cli} company={company} onBack={() => setActiveView('invoices')} onAddPayment={(id) => setShowPaymentModal(id)} onPdf={(id) => setShowInvoicePdf(id)} onDelete={(id) => setItemToDelete({ id, type: 'invoice' })} /> : <div className="p-8 text-center text-slate-500">Facture non trouvée</div>;
-      }
       case 'client-form': 
         return (
           <ClientForm 
@@ -179,10 +193,13 @@ const App: React.FC = () => {
           <NavItem icon="fa-users" label="Clients" active={activeView === 'clients' || activeView === 'client-form'} onClick={() => setActiveView('clients')} collapsed={sidebarCollapsed} />
           <NavItem icon="fa-boxes" label="Produits" active={activeView === 'products' || activeView === 'product-form'} onClick={() => setActiveView('products')} collapsed={sidebarCollapsed} />
           <NavItem icon="fa-money-bill-wave" label="Paiements" active={activeView === 'payments'} onClick={() => setActiveView('payments')} collapsed={sidebarCollapsed} />
-          <NavItem icon="fa-cog" label="Paramètres" active={activeView === 'settings'} onClick={() => setActiveView('settings')} collapsed={sidebarCollapsed} />
         </nav>
         
         <div className="p-4 border-t border-slate-800 space-y-2">
+          <button onClick={() => setActiveView('settings')} className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center' : 'space-x-3 px-4'} py-3 rounded-[15px] text-sm font-medium transition-all ${activeView === 'settings' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+            <i className="fas fa-cog w-5"></i>
+            {!sidebarCollapsed && <span>Paramètres</span>}
+          </button>
           <button onClick={toggleTheme} className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center' : 'space-x-3 px-4'} py-3 rounded-[15px] text-sm font-medium transition-all text-slate-400 hover:bg-slate-800 hover:text-white`}>
             <i className={`fas ${theme === 'dark' ? 'fa-sun text-amber-400' : 'fa-moon'} w-5`}></i>
             {!sidebarCollapsed && <span>{theme === 'dark' ? 'Mode Clair' : 'Mode Sombre'}</span>}
@@ -200,9 +217,16 @@ const App: React.FC = () => {
             <button onClick={() => setSidebarCollapsed(!sidebarCollapsed)} className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${theme === 'dark' ? 'bg-slate-700 text-slate-300 hover:bg-slate-600' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}>
               <i className={`fas ${sidebarCollapsed ? 'fa-arrow-right' : 'fa-arrow-left'}`}></i>
             </button>
-            <h2 className={`text-sm font-bold uppercase tracking-widest ${theme === 'dark' ? 'text-slate-200' : 'text-slate-800'}`}>{activeView.replace('-', ' ')}</h2>
+            <h2 className={`text-sm font-bold uppercase tracking-widest ${theme === 'dark' ? 'text-slate-200' : 'text-slate-800'}`}>{viewNames[activeView] || activeView}</h2>
           </div>
           <div className="flex items-center space-x-4">
+            <button 
+              onClick={() => setActiveView('settings')}
+              className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${activeView === 'settings' ? 'bg-indigo-600 text-white' : (theme === 'dark' ? 'bg-slate-700 text-slate-300 hover:bg-slate-600' : 'bg-slate-100 text-slate-400 hover:bg-slate-200')}`}
+              title="Paramètres"
+            >
+              <i className="fas fa-cog"></i>
+            </button>
             <div className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-white shadow-lg">{company?.name.charAt(0) || 'P'}</div>
           </div>
         </header>
