@@ -111,7 +111,6 @@ const App: React.FC = () => {
           invoices={invoices}
           clients={clients}
           company={company}
-          onRefresh={refreshUserData}
           onExportStatement={(clientId) => setShowClientStatementPdf(clientId)}
           initialClientId={selectedClientId || undefined}
           onDeletePayment={(invId, payId) => setItemToDelete({ id: payId, type: 'payment', invoiceId: invId })}
@@ -174,9 +173,9 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className={`flex h-screen overflow-hidden font-sans text-[13px] ${theme === 'dark' ? 'bg-slate-900 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
-      <div className={`${sidebarCollapsed ? 'w-20' : 'w-64'} ${theme === 'dark' ? 'bg-slate-800' : 'bg-slate-900'} text-white flex flex-col shrink-0 transition-all duration-300 ease-in-out`}>
-        <div className="p-6 border-b border-slate-800 flex items-center space-x-3">
+    <div className={`flex h-screen overflow-hidden font-sans text-[13px] ${theme === 'dark' ? 'bg-[#151723] text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
+      <div className={`${sidebarCollapsed ? 'w-20' : 'w-64'} ${theme === 'dark' ? 'bg-[#151723] border-r border-[#2a2d3d]' : 'bg-slate-900'} text-white flex flex-col shrink-0 transition-all duration-300 ease-in-out`}>
+        <div className={`p-6 border-b ${theme === 'dark' ? 'border-[#2a2d3d]' : 'border-slate-800'} flex items-center space-x-3`}>
           {company?.app_icon ? (
             <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center bg-transparent shrink-0">
               <img src={company.app_icon} alt="App Icon" className="w-full h-full object-contain" />
@@ -195,12 +194,12 @@ const App: React.FC = () => {
           <NavItem icon="fa-money-bill-wave" label="Paiements" active={activeView === 'payments'} onClick={() => setActiveView('payments')} collapsed={sidebarCollapsed} />
         </nav>
         
-        <div className="p-4 border-t border-slate-800 space-y-2">
-          <button onClick={() => setActiveView('settings')} className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center' : 'space-x-3 px-4'} py-3 rounded-[15px] text-sm font-medium transition-all ${activeView === 'settings' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+        <div className={`p-4 border-t ${theme === 'dark' ? 'border-[#2a2d3d]' : 'border-slate-800'} space-y-2`}>
+          <button onClick={() => setActiveView('settings')} className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center' : 'space-x-3 px-4'} py-3 rounded-[15px] text-sm font-medium transition-all ${activeView === 'settings' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : `text-slate-400 ${theme === 'dark' ? 'hover:bg-[#1c1f2e]' : 'hover:bg-slate-800'} hover:text-white`}`}>
             <i className="fas fa-cog w-5"></i>
             {!sidebarCollapsed && <span>Paramètres</span>}
           </button>
-          <button onClick={toggleTheme} className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center' : 'space-x-3 px-4'} py-3 rounded-[15px] text-sm font-medium transition-all text-slate-400 hover:bg-slate-800 hover:text-white`}>
+          <button onClick={toggleTheme} className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center' : 'space-x-3 px-4'} py-3 rounded-[15px] text-sm font-medium transition-all text-slate-400 ${theme === 'dark' ? 'hover:bg-[#1c1f2e]' : 'hover:bg-slate-800'} hover:text-white`}>
             <i className={`fas ${theme === 'dark' ? 'fa-sun text-amber-400' : 'fa-moon'} w-5`}></i>
             {!sidebarCollapsed && <span>{theme === 'dark' ? 'Mode Clair' : 'Mode Sombre'}</span>}
           </button>
@@ -212,9 +211,9 @@ const App: React.FC = () => {
       </div>
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className={`h-16 border-b flex items-center justify-between px-8 shrink-0 ${theme === 'dark' ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
+        <header className={`h-16 border-b flex items-center justify-between px-8 shrink-0 ${theme === 'dark' ? 'bg-[#151723] border-[#2a2d3d]' : 'bg-white border-slate-200'}`}>
           <div className="flex items-center space-x-4">
-            <button onClick={() => setSidebarCollapsed(!sidebarCollapsed)} className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${theme === 'dark' ? 'bg-slate-700 text-slate-300 hover:bg-slate-600' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}>
+            <button onClick={() => setSidebarCollapsed(!sidebarCollapsed)} className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${theme === 'dark' ? 'bg-[#1c1f2e] text-slate-300 hover:bg-[#232738]' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}>
               <i className={`fas ${sidebarCollapsed ? 'fa-arrow-right' : 'fa-arrow-left'}`}></i>
             </button>
             <h2 className={`text-sm font-bold uppercase tracking-widest ${theme === 'dark' ? 'text-slate-200' : 'text-slate-800'}`}>{viewNames[activeView] || activeView}</h2>
@@ -222,7 +221,7 @@ const App: React.FC = () => {
           <div className="flex items-center space-x-4">
             <button 
               onClick={() => setActiveView('settings')}
-              className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${activeView === 'settings' ? 'bg-indigo-600 text-white' : (theme === 'dark' ? 'bg-slate-700 text-slate-300 hover:bg-slate-600' : 'bg-slate-100 text-slate-400 hover:bg-slate-200')}`}
+              className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${activeView === 'settings' ? 'bg-indigo-600 text-white' : (theme === 'dark' ? 'bg-[#1c1f2e] text-slate-300 hover:bg-[#232738]' : 'bg-slate-100 text-slate-400 hover:bg-slate-200')}`}
               title="Paramètres"
             >
               <i className="fas fa-cog"></i>
@@ -231,7 +230,7 @@ const App: React.FC = () => {
           </div>
         </header>
 
-        <main className={`flex-1 overflow-y-auto p-8 custom-scrollbar ${theme === 'dark' ? 'bg-slate-900' : 'bg-slate-50'}`}>{renderContent()}</main>
+        <main className={`flex-1 overflow-y-auto p-8 custom-scrollbar ${theme === 'dark' ? 'bg-[#151723]' : 'bg-slate-50'}`}>{renderContent()}</main>
       </div>
 
       {showInvoicePdf && company && <InvoicePDFPreview invoices={invoices.filter(inv => Array.isArray(showInvoicePdf) ? showInvoicePdf.includes(inv.id) : inv.id === showInvoicePdf)} company={company} clients={clients} onClose={() => setShowInvoicePdf(null)} />}
@@ -249,7 +248,7 @@ const App: React.FC = () => {
 };
 
 const NavItem: React.FC<{ icon: string, label: string, active: boolean, onClick: () => void, collapsed: boolean }> = ({ icon, label, active, onClick, collapsed }) => (
-  <button onClick={onClick} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-[15px] text-sm font-medium transition-all ${active ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
+  <button onClick={onClick} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-[15px] text-sm font-medium transition-all ${active ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-slate-400 hover:bg-slate-800 dark:hover:bg-[#1c1f2e] hover:text-white'}`}>
     <i className={`fas ${icon} w-5`}></i>
     {!collapsed && <span>{label}</span>}
   </button>

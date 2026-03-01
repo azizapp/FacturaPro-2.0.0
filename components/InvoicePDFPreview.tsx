@@ -12,6 +12,24 @@ interface InvoicePDFPreviewProps {
   clients: Client[];
 }
 
+/**
+ * html2canvas has its own CSS parser that does NOT support oklch().
+ * html2pdf does NOT forward the `onclone` option to html2canvas.
+ * Solution: temporarily replace oklch() in every live <style> tag, restore after.
+ */
+const patchStylesForPdf = (): (() => void) => {
+  const originals: { el: HTMLStyleElement; text: string }[] = [];
+  document.querySelectorAll<HTMLStyleElement>('style').forEach((styleEl) => {
+    if (styleEl.textContent && /\b(?:oklch|oklab|lch|lab)\(/.test(styleEl.textContent)) {
+      originals.push({ el: styleEl, text: styleEl.textContent });
+      // Strip all modern color functions unsupported by html2canvas's CSS parser
+      styleEl.textContent = styleEl.textContent.replace(/\b(?:oklch|oklab|lch|lab|color)\([^)]*\)/g, 'transparent');
+    }
+  });
+  // Returns a restore function
+  return () => originals.forEach(({ el, text }) => { el.textContent = text; });
+};
+
 const InvoicePDFPreview: React.FC<InvoicePDFPreviewProps> = ({ invoices, company, onClose, clients }) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
@@ -30,32 +48,6 @@ const InvoicePDFPreview: React.FC<InvoicePDFPreviewProps> = ({ invoices, company
     const phone = (firstClient?.gsm1 || firstClient?.phone || "").replace(/\s+/g, '');
     const filename = invoices.length === 1 ? `Facture_${invoices[0].number}.pdf` : `Export_Factures_${new Date().getTime()}.pdf`;
 
-    // Store original styles to restore later
-    const originalStyles: Map<HTMLElement, { bg?: string; color?: string }> = new Map();
-
-    // Apply explicit hex colors to all elements to override oklch CSS variables
-    const allElements = element.querySelectorAll('*');
-    allElements.forEach((el) => {
-      const htmlEl = el as HTMLElement;
-      const computedStyle = window.getComputedStyle(htmlEl);
-      const bgColor = computedStyle.backgroundColor;
-      const textColor = computedStyle.color;
-
-      // Store original inline styles
-      originalStyles.set(htmlEl, {
-        bg: htmlEl.style.backgroundColor,
-        color: htmlEl.style.color
-      });
-
-      // Force explicit hex colors
-      if (bgColor && bgColor !== 'rgba(0, 0, 0, 0)' && bgColor !== 'transparent') {
-        htmlEl.style.backgroundColor = bgColor;
-      }
-      if (textColor) {
-        htmlEl.style.color = textColor;
-      }
-    });
-
     const opt = {
       margin: 0,
       filename: filename,
@@ -63,6 +55,7 @@ const InvoicePDFPreview: React.FC<InvoicePDFPreviewProps> = ({ invoices, company
       html2canvas: { scale: 2, useCORS: true, letterRendering: true, logging: false },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
+    const restoreStyles = patchStylesForPdf();
     try {
       const pdfBlob = await html2pdf().from(element).set(opt).output('blob');
       if (navigator.canShare && navigator.canShare({ files: [new File([pdfBlob], filename, { type: 'application/pdf' })] })) {
@@ -83,11 +76,7 @@ const InvoicePDFPreview: React.FC<InvoicePDFPreviewProps> = ({ invoices, company
     } catch (error) {
       console.error("Erreur partage WhatsApp:", error);
     } finally {
-      // Restore original inline styles
-      originalStyles.forEach((styles, htmlEl) => {
-        htmlEl.style.backgroundColor = styles.bg || '';
-        htmlEl.style.color = styles.color || '';
-      });
+      restoreStyles();
       setIsSharing(false);
     }
   };
@@ -98,32 +87,6 @@ const InvoicePDFPreview: React.FC<InvoicePDFPreviewProps> = ({ invoices, company
     setIsDownloading(true);
     const filename = invoices.length === 1 ? `Facture_${invoices[0].number}.pdf` : `Export_Factures_${new Date().getTime()}.pdf`;
 
-    // Store original styles to restore later
-    const originalStyles: Map<HTMLElement, { bg?: string; color?: string }> = new Map();
-
-    // Apply explicit hex colors to all elements to override oklch CSS variables
-    const allElements = element.querySelectorAll('*');
-    allElements.forEach((el) => {
-      const htmlEl = el as HTMLElement;
-      const computedStyle = window.getComputedStyle(htmlEl);
-      const bgColor = computedStyle.backgroundColor;
-      const textColor = computedStyle.color;
-
-      // Store original inline styles
-      originalStyles.set(htmlEl, {
-        bg: htmlEl.style.backgroundColor,
-        color: htmlEl.style.color
-      });
-
-      // Force explicit hex colors
-      if (bgColor && bgColor !== 'rgba(0, 0, 0, 0)' && bgColor !== 'transparent') {
-        htmlEl.style.backgroundColor = bgColor; // Converts computed color to inline
-      }
-      if (textColor) {
-        htmlEl.style.color = textColor;
-      }
-    });
-
     const opt = {
       margin: 0,
       filename: filename,
@@ -131,16 +94,13 @@ const InvoicePDFPreview: React.FC<InvoicePDFPreviewProps> = ({ invoices, company
       html2canvas: { scale: 2, useCORS: true, letterRendering: true, logging: false },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
+    const restoreStyles = patchStylesForPdf();
     try {
       await html2pdf().from(element).set(opt).save();
     } catch (error) {
       console.error("Erreur PDF:", error);
     } finally {
-      // Restore original inline styles
-      originalStyles.forEach((styles, htmlEl) => {
-        htmlEl.style.backgroundColor = styles.bg || '';
-        htmlEl.style.color = styles.color || '';
-      });
+      restoreStyles();
       setIsDownloading(false);
     }
   };
