@@ -22,13 +22,40 @@ const InvoicePDFPreview: React.FC<InvoicePDFPreviewProps> = ({ invoices, company
 
   const handleWhatsApp = async () => {
     if (invoices.length === 0) return;
-    const element = document.querySelector('.printable-container');
+    const element = document.querySelector('.printable-container') as HTMLElement;
     if (!element) return;
     setIsSharing(true);
     const firstInvoice = invoices[0];
     const firstClient = clients.find(c => c.id === firstInvoice.clientId);
     const phone = (firstClient?.gsm1 || firstClient?.phone || "").replace(/\s+/g, '');
     const filename = invoices.length === 1 ? `Facture_${invoices[0].number}.pdf` : `Export_Factures_${new Date().getTime()}.pdf`;
+
+    // Store original styles to restore later
+    const originalStyles: Map<HTMLElement, { bg?: string; color?: string }> = new Map();
+
+    // Apply explicit hex colors to all elements to override oklch CSS variables
+    const allElements = element.querySelectorAll('*');
+    allElements.forEach((el) => {
+      const htmlEl = el as HTMLElement;
+      const computedStyle = window.getComputedStyle(htmlEl);
+      const bgColor = computedStyle.backgroundColor;
+      const textColor = computedStyle.color;
+
+      // Store original inline styles
+      originalStyles.set(htmlEl, {
+        bg: htmlEl.style.backgroundColor,
+        color: htmlEl.style.color
+      });
+
+      // Force explicit hex colors
+      if (bgColor && bgColor !== 'rgba(0, 0, 0, 0)' && bgColor !== 'transparent') {
+        htmlEl.style.backgroundColor = bgColor;
+      }
+      if (textColor) {
+        htmlEl.style.color = textColor;
+      }
+    });
+
     const opt = {
       margin: 0,
       filename: filename,
@@ -56,15 +83,47 @@ const InvoicePDFPreview: React.FC<InvoicePDFPreviewProps> = ({ invoices, company
     } catch (error) {
       console.error("Erreur partage WhatsApp:", error);
     } finally {
+      // Restore original inline styles
+      originalStyles.forEach((styles, htmlEl) => {
+        htmlEl.style.backgroundColor = styles.bg || '';
+        htmlEl.style.color = styles.color || '';
+      });
       setIsSharing(false);
     }
   };
 
   const handleDownload = async () => {
-    const element = document.querySelector('.printable-container');
+    const element = document.querySelector('.printable-container') as HTMLElement;
     if (!element) return;
     setIsDownloading(true);
     const filename = invoices.length === 1 ? `Facture_${invoices[0].number}.pdf` : `Export_Factures_${new Date().getTime()}.pdf`;
+
+    // Store original styles to restore later
+    const originalStyles: Map<HTMLElement, { bg?: string; color?: string }> = new Map();
+
+    // Apply explicit hex colors to all elements to override oklch CSS variables
+    const allElements = element.querySelectorAll('*');
+    allElements.forEach((el) => {
+      const htmlEl = el as HTMLElement;
+      const computedStyle = window.getComputedStyle(htmlEl);
+      const bgColor = computedStyle.backgroundColor;
+      const textColor = computedStyle.color;
+
+      // Store original inline styles
+      originalStyles.set(htmlEl, {
+        bg: htmlEl.style.backgroundColor,
+        color: htmlEl.style.color
+      });
+
+      // Force explicit hex colors
+      if (bgColor && bgColor !== 'rgba(0, 0, 0, 0)' && bgColor !== 'transparent') {
+        htmlEl.style.backgroundColor = bgColor; // Converts computed color to inline
+      }
+      if (textColor) {
+        htmlEl.style.color = textColor;
+      }
+    });
+
     const opt = {
       margin: 0,
       filename: filename,
@@ -77,6 +136,11 @@ const InvoicePDFPreview: React.FC<InvoicePDFPreviewProps> = ({ invoices, company
     } catch (error) {
       console.error("Erreur PDF:", error);
     } finally {
+      // Restore original inline styles
+      originalStyles.forEach((styles, htmlEl) => {
+        htmlEl.style.backgroundColor = styles.bg || '';
+        htmlEl.style.color = styles.color || '';
+      });
       setIsDownloading(false);
     }
   };
