@@ -10,6 +10,7 @@ interface InvoicePDFPreviewProps {
   company: Company;
   onClose: () => void;
   clients: Client[];
+  autoAction?: 'whatsapp' | 'email';
 }
 
 /**
@@ -30,9 +31,17 @@ const patchStylesForPdf = (): (() => void) => {
   return () => originals.forEach(({ el, text }) => { el.textContent = text; });
 };
 
-const InvoicePDFPreview: React.FC<InvoicePDFPreviewProps> = ({ invoices, company, onClose, clients }) => {
+const InvoicePDFPreview: React.FC<InvoicePDFPreviewProps> = ({ invoices, company, onClose, clients, autoAction }) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
+
+  React.useEffect(() => {
+    if (autoAction === 'whatsapp') {
+      handleWhatsApp();
+    } else if (autoAction === 'email') {
+      handleEmail();
+    }
+  }, [autoAction]);
 
   const handlePrint = () => {
     window.print();
@@ -75,6 +84,51 @@ const InvoicePDFPreview: React.FC<InvoicePDFPreviewProps> = ({ invoices, company
       }
     } catch (error) {
       console.error("Erreur partage WhatsApp:", error);
+    } finally {
+      restoreStyles();
+      setIsSharing(false);
+    }
+  };
+
+  const handleEmail = async () => {
+    if (invoices.length === 0) return;
+    const element = document.querySelector('.printable-container') as HTMLElement;
+    if (!element) return;
+    setIsSharing(true);
+    const firstInvoice = invoices[0];
+    const firstClient = clients.find(c => c.id === firstInvoice.clientId);
+    if (!firstClient?.email) return;
+
+    const filename = invoices.length === 1 ? `Facture_${invoices[0].number}.pdf` : `Export_Factures_${new Date().getTime()}.pdf`;
+
+    const opt = {
+      margin: 0,
+      filename: filename,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, letterRendering: true, logging: false },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    const restoreStyles = patchStylesForPdf();
+    try {
+      const pdfBlob = await html2pdf().from(element).set(opt).output('blob');
+      if (navigator.canShare && navigator.canShare({ files: [new File([pdfBlob], filename, { type: 'application/pdf' })] })) {
+        const file = new File([pdfBlob], filename, { type: 'application/pdf' });
+        await navigator.share({
+          files: [file],
+          title: 'Facture ' + (invoices.length === 1 ? invoices[0].number : ''),
+          text: `Bonjour, veuillez trouver ci-joint votre facture de la part de ${company.name}.`,
+        });
+      } else {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(pdfBlob);
+        link.download = filename;
+        link.click();
+        const subject = encodeURIComponent(`Facture ${firstInvoice.number} - ${company.name}`);
+        const body = encodeURIComponent(`Bonjour, voici votre facture "${filename}" en pièce jointe.`);
+        window.location.href = `mailto:${firstClient.email}?subject=${subject}&body=${body}`;
+      }
+    } catch (error) {
+      console.error("Erreur partage Email:", error);
     } finally {
       restoreStyles();
       setIsSharing(false);

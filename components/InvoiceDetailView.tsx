@@ -9,7 +9,7 @@ interface InvoiceDetailViewProps {
   company: Company;
   onBack: () => void;
   onAddPayment: (id: string) => void;
-  onPdf: (id: string) => void;
+  onPdf: (id: string, autoAction?: 'whatsapp' | 'email') => void;
   onDelete: (id: string) => void;
 }
 
@@ -45,6 +45,8 @@ const InvoiceDetailView: React.FC<InvoiceDetailViewProps> = ({
   const remaining = Math.max(0, invoice.grandTotal - calculateTotalPaid(invoice));
 
   const handleSendEmail = async () => {
+    if (!client.email) return;
+    onPdf(invoice.id, 'email');
     setIsGeneratingEmail(true);
     try {
       const emailBody = await generateFollowUpEmail(invoice, client, company.ai_api_key);
@@ -52,17 +54,44 @@ const InvoiceDetailView: React.FC<InvoiceDetailViewProps> = ({
       const body = encodeURIComponent(emailBody);
       window.location.href = `mailto:${client.email}?subject=${subject}&body=${body}`;
     } catch (error) {
-      alert("Erreur lors de la génération de l'email via l'IA.");
+      alert("Erreur lors de la génération de l'email via l'IA. Ouverture de l'email standard.");
+      handleStandardEmail();
     } finally {
       setIsGeneratingEmail(false);
     }
   };
 
+  const handleStandardEmail = () => {
+    if (!client.email) return;
+    onPdf(invoice.id, 'email');
+    const subject = encodeURIComponent(`Facture ${invoice.number} - ${company.name}`);
+    const body = encodeURIComponent(
+      `Bonjour ${client.name},\n\n` +
+      `Veuillez trouver ci-joint votre facture ${invoice.number} d'un montant de ${invoice.grandTotal.toLocaleString()} MAD.\n\n` +
+      `Cordialement,\n${company.name}`
+    );
+    window.location.href = `mailto:${client.email}?subject=${subject}&body=${body}`;
+  };
+
   const handleWhatsApp = () => {
-    if (!client.phone && !client.gsm1) {
+    const rawPhone = client.gsm1 || client.phone;
+    if (!rawPhone) {
       alert("Le numéro de téléphone du client est manquant.");
       return;
     }
+
+    onPdf(invoice.id, 'whatsapp');
+
+    // Basic formatting for Morocco (+212)
+    let phone = rawPhone.replace(/\s+/g, '').replace(/[^\d+]/g, '');
+    if (phone.startsWith('0')) {
+      phone = '212' + phone.substring(1);
+    } else if (!phone.startsWith('+') && !phone.startsWith('212')) {
+      phone = '212' + phone;
+    }
+
+    // Remove if there is a leading + for wa.me link
+    phone = phone.replace('+', '');
 
     const message = encodeURIComponent(
       `*FACTURE : ${invoice.number}*\n` +
@@ -71,11 +100,9 @@ const InvoiceDetailView: React.FC<InvoiceDetailViewProps> = ({
       `• *Montant Total :* ${invoice.grandTotal.toLocaleString()} MAD\n` +
       `• *Déjà réglé :* ${calculateTotalPaid(invoice).toLocaleString()} MAD\n` +
       `• *Solde restant :* ${remaining.toLocaleString()} MAD\n\n` +
-      `Vous pouvez télécharger votre facture PDF sur notre portail.\n\n` +
       `Cordialement,\n*${company.name}*`
     );
 
-    const phone = (client.gsm1 || client.phone || "").replace(/\s+/g, '');
     window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
   };
 
@@ -290,14 +317,34 @@ const InvoiceDetailView: React.FC<InvoiceDetailViewProps> = ({
           <div className="bg-indigo-600 p-8 rounded-[15px] shadow-xl shadow-indigo-600/20 text-white space-y-6">
             <h4 className="text-[10px] font-bold uppercase tracking-widest text-indigo-200">Actions Rapides</h4>
             <div className="space-y-3">
-              <button onClick={handleWhatsApp} className="w-full bg-[#25D366] hover:bg-[#128C7E] text-white py-3 rounded-[10px] text-xs font-bold uppercase tracking-widest transition-all flex items-center justify-center space-x-2">
+              <button
+                onClick={handleWhatsApp}
+                disabled={!(client.phone || client.gsm1)}
+                className="w-full bg-[#25D366] hover:bg-[#128C7E] text-white py-3 rounded-[10px] text-xs font-bold uppercase tracking-widest transition-all flex items-center justify-center space-x-2 disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed"
+              >
                 <i className="fab fa-whatsapp text-lg"></i>
                 <span>WhatsApp</span>
               </button>
-              <button onClick={handleSendEmail} disabled={isGeneratingEmail} className="w-full bg-white/10 hover:bg-white/20 py-3 rounded-[10px] text-xs font-bold uppercase tracking-widest transition-all flex items-center justify-center space-x-2 disabled:opacity-50">
-                {isGeneratingEmail ? <i className="fas fa-circle-notch animate-spin"></i> : <i className="far fa-envelope"></i>}
-                <span>Email IA</span>
-              </button>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={handleStandardEmail}
+                  disabled={!client.email}
+                  className="bg-white/10 hover:bg-white/20 py-3 rounded-[10px] text-[10px] font-bold uppercase tracking-widest transition-all flex items-center justify-center space-x-2 disabled:opacity-30 disabled:cursor-not-allowed"
+                  title="Email Standard"
+                >
+                  <i className="far fa-envelope"></i>
+                  <span>Email</span>
+                </button>
+                <button
+                  onClick={handleSendEmail}
+                  disabled={isGeneratingEmail || !client.email}
+                  className="bg-indigo-500 hover:bg-indigo-400 py-3 rounded-[10px] text-[10px] font-bold uppercase tracking-widest transition-all flex items-center justify-center space-x-2 disabled:opacity-30 disabled:cursor-not-allowed"
+                  title="Générer avec l'IA"
+                >
+                  {isGeneratingEmail ? <i className="fas fa-circle-notch animate-spin"></i> : <i className="fas fa-magic"></i>}
+                  <span>Email IA</span>
+                </button>
+              </div>
               <button onClick={() => onAddPayment(invoice.id)} className="w-full bg-white text-indigo-600 py-3 rounded-[10px] text-xs font-bold uppercase tracking-widest transition-all shadow-lg hover:bg-indigo-50 flex items-center justify-center space-x-2">
                 <i className="fas fa-plus"></i>
                 <span>Payer</span>

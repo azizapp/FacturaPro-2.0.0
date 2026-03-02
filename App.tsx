@@ -30,6 +30,7 @@ const App: React.FC = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
 
   const [showInvoicePdf, setShowInvoicePdf] = useState<string | string[] | null>(null);
+  const [pdfAutoAction, setPdfAutoAction] = useState<'whatsapp' | 'email' | null>(null);
   const [showClientStatementPdf, setShowClientStatementPdf] = useState<string | null>(null);
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
@@ -122,46 +123,46 @@ const App: React.FC = () => {
       case 'invoice-detail':
         const inv = invoices.find(i => i.id === selectedInvoiceId);
         const cli = clients.find(c => c.id === inv?.clientId);
-        return inv && cli ? <InvoiceDetailView invoice={inv} client={cli} company={company} onBack={() => setActiveView('invoices')} onAddPayment={(id) => setShowPaymentModal(id)} onPdf={(id) => setShowInvoicePdf(id)} onDelete={(id) => setItemToDelete({ id, type: 'invoice' })} /> : <div className="p-8 text-center text-slate-500">Facture non trouvée</div>;
-      case 'client-form': 
+        return inv && cli ? <InvoiceDetailView invoice={inv} client={cli} company={company} onBack={() => setActiveView('invoices')} onAddPayment={(id) => setShowPaymentModal(id)} onPdf={(id, intent) => { setPdfAutoAction(intent || null); setShowInvoicePdf(id); }} onDelete={(id) => setItemToDelete({ id, type: 'invoice' })} /> : <div className="p-8 text-center text-slate-500">Facture non trouvée</div>;
+      case 'client-form':
         return (
-          <ClientForm 
-            initialClient={clients.find(c => c.id === selectedClientId)} 
+          <ClientForm
+            initialClient={clients.find(c => c.id === selectedClientId)}
             onSubmit={(client) => {
               if (selectedClientId) updateClient(client);
               else addClient(client);
               setActiveView('clients');
-            }} 
-            onCancel={() => setActiveView('clients')} 
-            companyEmail={company?.email} 
+            }}
+            onCancel={() => setActiveView('clients')}
+            companyEmail={company?.email}
           />
         );
-      case 'invoice-form': 
+      case 'invoice-form':
         return (
-          <InvoiceForm 
-            clients={clients} 
-            products={products} 
-            company={company} 
-            invoices={invoices} 
-            initialInvoice={invoices.find(i => i.id === selectedInvoiceId)} 
+          <InvoiceForm
+            clients={clients}
+            products={products}
+            company={company}
+            invoices={invoices}
+            initialInvoice={invoices.find(i => i.id === selectedInvoiceId)}
             onSubmit={(invoice) => {
               if (selectedInvoiceId) updateInvoice(invoice);
               else addInvoice(invoice);
               setActiveView('invoices');
-            }} 
-            onCancel={() => setActiveView('invoices')} 
+            }}
+            onCancel={() => setActiveView('invoices')}
           />
         );
-      case 'product-form': 
+      case 'product-form':
         return (
-          <ProductForm 
+          <ProductForm
             initialProduct={products.find(p => p.id === selectedProductId)}
             onSubmit={(product) => {
               if (selectedProductId) updateProduct(product);
               else addProduct(product);
               setActiveView('products');
-            }} 
-            onCancel={() => setActiveView('products')} 
+            }}
+            onCancel={() => setActiveView('products')}
           />
         );
       default: return <Dashboard invoices={invoices} clients={clients} />;
@@ -193,7 +194,7 @@ const App: React.FC = () => {
           <NavItem icon="fa-boxes" label="Produits" active={activeView === 'products' || activeView === 'product-form'} onClick={() => setActiveView('products')} collapsed={sidebarCollapsed} />
           <NavItem icon="fa-money-bill-wave" label="Paiements" active={activeView === 'payments'} onClick={() => setActiveView('payments')} collapsed={sidebarCollapsed} />
         </nav>
-        
+
         <div className={`p-4 border-t ${theme === 'dark' ? 'border-[#2a2d3d]' : 'border-slate-800'} space-y-2`}>
           <button onClick={() => setActiveView('settings')} className={`w-full flex items-center ${sidebarCollapsed ? 'justify-center' : 'space-x-3 px-4'} py-3 rounded-[15px] text-sm font-medium transition-all ${activeView === 'settings' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : `text-slate-400 ${theme === 'dark' ? 'hover:bg-[#1c1f2e]' : 'hover:bg-slate-800'} hover:text-white`}`}>
             <i className="fas fa-cog w-5"></i>
@@ -219,7 +220,7 @@ const App: React.FC = () => {
             <h2 className={`text-sm font-bold uppercase tracking-widest ${theme === 'dark' ? 'text-slate-200' : 'text-slate-800'}`}>{viewNames[activeView] || activeView}</h2>
           </div>
           <div className="flex items-center space-x-4">
-            <button 
+            <button
               onClick={() => setActiveView('settings')}
               className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${activeView === 'settings' ? 'bg-indigo-600 text-white' : (theme === 'dark' ? 'bg-[#1c1f2e] text-slate-300 hover:bg-[#232738]' : 'bg-slate-100 text-slate-400 hover:bg-slate-200')}`}
               title="Paramètres"
@@ -233,7 +234,15 @@ const App: React.FC = () => {
         <main className={`flex-1 overflow-y-auto p-8 custom-scrollbar ${theme === 'dark' ? 'bg-[#151723]' : 'bg-slate-50'}`}>{renderContent()}</main>
       </div>
 
-      {showInvoicePdf && company && <InvoicePDFPreview invoices={invoices.filter(inv => Array.isArray(showInvoicePdf) ? showInvoicePdf.includes(inv.id) : inv.id === showInvoicePdf)} company={company} clients={clients} onClose={() => setShowInvoicePdf(null)} />}
+      {showInvoicePdf && company && (
+        <InvoicePDFPreview
+          invoices={invoices.filter(inv => Array.isArray(showInvoicePdf) ? showInvoicePdf.includes(inv.id) : inv.id === showInvoicePdf)}
+          company={company}
+          clients={clients}
+          onClose={() => { setShowInvoicePdf(null); setPdfAutoAction(null); }}
+          autoAction={pdfAutoAction || undefined}
+        />
+      )}
       {showClientStatementPdf && company && <ClientStatementPDFPreview client={clients.find(c => c.id === showClientStatementPdf)!} invoices={invoices.filter(i => i.clientId === showClientStatementPdf)} company={company} onClose={() => setShowClientStatementPdf(null)} />}
       {showPaymentModal && <PaymentModal invoice={invoices.find(i => i.id === showPaymentModal)!} onClose={() => setShowPaymentModal(null)} onPaymentAdded={addPayment} />}
       <DeleteConfirmationModal
