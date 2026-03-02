@@ -349,31 +349,43 @@ const InvoicePDFPreview: React.FC<InvoicePDFPreviewProps> = ({ invoices, company
             margin: 0; 
           }
           
-          /* Forcer l'affichage des couleurs et fonds */
+          /* CRITICAL: Disable all animations and transitions that might keep content at 0 opacity */
           * {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
             color-adjust: exact !important;
+            animation: none !important;
+            transition: none !important;
+            transition-delay: 0s !important;
           }
 
-          /* Réinitialisation critique pour éviter les pages blanches */
-          html, body {
+          /* Force full visibility and opacity on everything inside the modal */
+          .invoice-modal-wrapper,
+          .invoice-modal-wrapper *,
+          .printable-sheet,
+          .printable-sheet * {
+            visibility: visible !important;
+            opacity: 1 !important;
+            transform: none !important;
+          }
+
+          /* Ensure all parent containers are visible and allow content to flow naturally */
+          html, body, #root, #root > div {
             margin: 0 !important;
             padding: 0 !important;
             height: auto !important;
+            min-height: auto !important;
             overflow: visible !important;
+            display: block !important;
             background: white !important;
-          }
-
-          /* Cache tout SAUF ce qu'on veut imprimer */
-          /* On utilise visibility au lieu de display:none sur le root car display:none sur parent tue l'impression des enfants */
-          body > * {
-            visibility: hidden !important;
-          }
-
-          .invoice-modal-wrapper, 
-          .invoice-modal-wrapper * {
+            opacity: 1 !important;
             visibility: visible !important;
+          }
+
+          /* Hide only the main app layout elements, leaving the modal visible.
+             Avoid hiding body-level elements to prevent issues with browser extensions. */
+          #root > div > *:not(.invoice-modal-wrapper) {
+            display: none !important;
           }
 
           .invoice-modal-wrapper {
@@ -385,27 +397,45 @@ const InvoicePDFPreview: React.FC<InvoicePDFPreviewProps> = ({ invoices, company
             padding: 0 !important;
             display: block !important;
             background: white !important;
-            z-index: 999999 !important;
+            z-index: auto !important;
+            height: auto !important;
+            overflow: visible !important;
           }
 
-          /* Masquer la barre d'outils et le fond assombri */
-          .print\\:hidden, .bg-slate-900\\/80, .backdrop-blur-md {
+          /* The inner modal content should not be hidden/clipped */
+          .invoice-modal-wrapper > div {
+            position: static !important;
+            display: block !important;
+            width: 100% !important;
+            height: auto !important;
+            box-shadow: none !important;
+            border: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: visible !important;
+          }
+
+          /* Hide UI elements specifically */
+          .print\:hidden, 
+          .invoice-modal-wrapper .bg-slate-900\/80, 
+          .invoice-modal-wrapper .backdrop-blur-md,
+          .invoice-modal-wrapper > div > div:first-child {
             display: none !important;
-            visibility: hidden !important;
           }
 
           .printable-container {
             width: 210mm !important;
-            margin: 0 !important;
+            margin: 0 auto !important;
             padding: 0 !important;
             display: block !important;
+            overflow: visible !important;
           }
 
           .printable-sheet {
             width: 210mm !important;
             height: 297mm !important;
             min-height: 297mm !important;
-            margin: 0 !important;
+            margin: 0 auto !important;
             padding: 10mm !important;
             box-sizing: border-box !important;
             page-break-after: always !important;
@@ -415,13 +445,14 @@ const InvoicePDFPreview: React.FC<InvoicePDFPreviewProps> = ({ invoices, company
             box-shadow: none !important;
             border: none !important;
             position: relative !important;
+            overflow: visible !important;
           }
 
-          /* Fixer les images (logo/signature) */
           img {
             max-width: 100% !important;
             display: block !important;
             opacity: 1 !important;
+            visibility: visible !important;
           }
         }
       `}} />

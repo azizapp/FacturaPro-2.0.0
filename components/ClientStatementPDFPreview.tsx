@@ -14,7 +14,7 @@ const ClientStatementPDFPreview: React.FC<ClientStatementPDFPreviewProps> = ({ c
     window.print();
   };
 
-  const payments = invoices.flatMap(inv => 
+  const payments = invoices.flatMap(inv =>
     (inv.payments || []).map(p => ({
       ...p,
       invoiceNumber: inv.number
@@ -29,7 +29,7 @@ const ClientStatementPDFPreview: React.FC<ClientStatementPDFPreviewProps> = ({ c
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-md overflow-hidden print:overflow-visible statement-modal-wrapper">
       <div className="bg-white dark:bg-slate-900 w-full max-w-5xl h-[95vh] rounded-[15px] shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-8 duration-300 print:h-auto print:w-full print:shadow-none print:rounded-none print:static print:block border border-transparent dark:border-white/10">
-        
+
         {/* Header - Hidden on Print */}
         <div className="p-5 bg-slate-900 dark:bg-slate-800 flex items-center justify-between text-white shrink-0 print:hidden border-b border-transparent dark:border-white/10">
           <div className="flex items-center space-x-4 ml-4">
@@ -42,7 +42,7 @@ const ClientStatementPDFPreview: React.FC<ClientStatementPDFPreviewProps> = ({ c
             </div>
           </div>
           <div className="flex items-center space-x-3">
-            <button 
+            <button
               onClick={handlePrint}
               className="px-8 py-2.5 bg-orange-600 hover:bg-orange-700 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all shadow-lg active:scale-95 flex items-center space-x-2"
             >
@@ -59,7 +59,7 @@ const ClientStatementPDFPreview: React.FC<ClientStatementPDFPreviewProps> = ({ c
         <div className="flex-1 overflow-y-auto p-12 bg-slate-100 dark:bg-slate-950 custom-scrollbar print:p-0 print:bg-white print:overflow-visible">
           {/* THE PRINTABLE SHEET */}
           <div className="printable-sheet mx-auto bg-white p-[15mm] shadow-2xl border border-slate-200 print:border-none print:shadow-none print:p-15mm print:m-0 w-full max-w-[900px] font-sans text-slate-900 print:max-w-none rounded-[15px]">
-            
+
             {/* Header */}
             <div className="flex justify-between items-start mb-16">
               <div className="space-y-4">
@@ -87,15 +87,15 @@ const ClientStatementPDFPreview: React.FC<ClientStatementPDFPreviewProps> = ({ c
 
             {/* Account Summary Bar */}
             <div className="bg-slate-50 rounded-[40px] p-10 mb-16 flex justify-between items-center border border-slate-100 print:bg-white print:border-slate-200">
-               <div className="text-left">
-                 <p className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-2">Situation du Client</p>
-                 <p className="text-2xl font-black text-slate-800 uppercase tracking-tight">{client.name}</p>
-                 <p className="text-sm text-slate-500 mt-1 italic">{client.address}</p>
-               </div>
-               <div className="text-right bg-white p-6 rounded-3xl border border-slate-100 shadow-sm print:shadow-none">
-                 <p className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-2">Solde Débiteur</p>
-                 <p className="text-4xl font-black text-rose-600 tracking-tighter">{balance.toLocaleString()} <span className="text-sm">MAD</span></p>
-               </div>
+              <div className="text-left">
+                <p className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-2">Situation du Client</p>
+                <p className="text-2xl font-black text-slate-800 uppercase tracking-tight">{client.name}</p>
+                <p className="text-sm text-slate-500 mt-1 italic">{client.address}</p>
+              </div>
+              <div className="text-right bg-white p-6 rounded-3xl border border-slate-100 shadow-sm print:shadow-none">
+                <p className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-2">Solde Débiteur</p>
+                <p className="text-4xl font-black text-rose-600 tracking-tighter">{balance.toLocaleString()} <span className="text-sm">MAD</span></p>
+              </div>
             </div>
 
             {/* Invoices History */}
@@ -125,7 +125,7 @@ const ClientStatementPDFPreview: React.FC<ClientStatementPDFPreviewProps> = ({ c
                         <td className="py-4 px-4 text-center font-black text-slate-600">{qty}</td>
                         <td className="py-4 px-4 text-right font-black">{inv.grandTotal.toLocaleString()}</td>
                         <td className="py-4 px-4 text-right font-black text-emerald-600">{paid.toLocaleString()}</td>
-                        <td className="py-4 px-4 text-right font-black text-rose-500 bg-rose-50/30 print:bg-white">{ (inv.grandTotal - paid).toLocaleString()}</td>
+                        <td className="py-4 px-4 text-right font-black text-rose-500 bg-rose-50/30 print:bg-white">{(inv.grandTotal - paid).toLocaleString()}</td>
                       </tr>
                     );
                   })}
@@ -187,34 +187,48 @@ const ClientStatementPDFPreview: React.FC<ClientStatementPDFPreviewProps> = ({ c
           </div>
         </div>
       </div>
-      
-      <style dangerouslySetInnerHTML={{ __html: `
+
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @media print {
           @page { size: A4 portrait; margin: 0; }
           
+          /* CRITICAL: Disable all animations and transitions */
           * { 
             -webkit-print-color-adjust: exact !important; 
             print-color-adjust: exact !important; 
             color-adjust: exact !important;
+            animation: none !important;
+            transition: none !important;
+            transition-delay: 0s !important;
+          }
+
+          /* Force full visibility and opacity */
+          .statement-modal-wrapper,
+          .statement-modal-wrapper *,
+          .printable-sheet,
+          .printable-sheet * {
+            visibility: visible !important;
+            opacity: 1 !important;
+            transform: none !important;
           }
           
-          html, body {
+          /* Ensure all parent containers flow naturally */
+          html, body, #root, #root > div {
             margin: 0 !important;
             padding: 0 !important;
-            background: white !important;
-            overflow: visible !important;
             height: auto !important;
-          }
-
-          /* Masquer tout le contenu de l'app par défaut */
-          body > * {
-            visibility: hidden !important;
-          }
-
-          /* Rendre visible uniquement le relevé de compte */
-          .statement-modal-wrapper, 
-          .statement-modal-wrapper * {
+            min-height: auto !important;
+            overflow: visible !important;
+            display: block !important;
+            background: white !important;
+            opacity: 1 !important;
             visibility: visible !important;
+          }
+
+          /* Hide only the main app layout elements, leaving the modal visible. */
+          #root > div > *:not(.statement-modal-wrapper) {
+            display: none !important;
           }
 
           .statement-modal-wrapper {
@@ -222,16 +236,35 @@ const ClientStatementPDFPreview: React.FC<ClientStatementPDFPreviewProps> = ({ c
             left: 0 !important;
             top: 0 !important;
             width: 100% !important;
-            padding: 0 !important;
             margin: 0 !important;
-            background: white !important;
+            padding: 0 !important;
             display: block !important;
-            z-index: 999999 !important;
+            background: white !important;
+            visibility: visible !important;
+            z-index: auto !important;
+            height: auto !important;
+            overflow: visible !important;
           }
 
-          .print\\:hidden, .bg-slate-900\\/60, .backdrop-blur-md {
+          /* Modal inner content should not be clipped */
+          .statement-modal-wrapper > div {
+            position: static !important;
+            display: block !important;
+            width: 100% !important;
+            height: auto !important;
+            box-shadow: none !important;
+            border: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: visible !important;
+          }
+
+          /* Hide UI elements specifically */
+          .print\:hidden, 
+          .statement-modal-wrapper .bg-slate-900\/60, 
+          .statement-modal-wrapper .backdrop-blur-md,
+          .statement-modal-wrapper > div > div:first-child {
             display: none !important;
-            visibility: hidden !important;
           }
 
           .printable-sheet {
@@ -244,19 +277,25 @@ const ClientStatementPDFPreview: React.FC<ClientStatementPDFPreviewProps> = ({ c
             background: white !important;
             border-radius: 0 !important;
             box-sizing: border-box !important;
+            overflow: visible !important;
+            display: flex !important;
+            flex-direction: column !important;
           }
 
           .bg-slate-50 {
             background-color: #f8fafc !important;
-            border-color: #e2e8f0 !important;
           }
           
           .bg-slate-900 {
             background-color: #0f172a !important;
           }
 
-          .text-white { color: black !important; }
-          .text-slate-900 { color: black !important; }
+          img {
+            max-width: 100% !important;
+            display: block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+          }
         }
       `}} />
     </div>
