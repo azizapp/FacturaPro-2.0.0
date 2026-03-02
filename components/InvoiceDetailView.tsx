@@ -325,26 +325,15 @@ const InvoiceDetailView: React.FC<InvoiceDetailViewProps> = ({
                 <i className="fab fa-whatsapp text-lg"></i>
                 <span>WhatsApp</span>
               </button>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  onClick={handleStandardEmail}
-                  disabled={!client.email}
-                  className="bg-white/10 hover:bg-white/20 py-3 rounded-[10px] text-[10px] font-bold uppercase tracking-widest transition-all flex items-center justify-center space-x-2 disabled:opacity-30 disabled:cursor-not-allowed"
-                  title="Email Standard"
-                >
-                  <i className="far fa-envelope"></i>
-                  <span>Email</span>
-                </button>
-                <button
-                  onClick={handleSendEmail}
-                  disabled={isGeneratingEmail || !client.email}
-                  className="bg-indigo-500 hover:bg-indigo-400 py-3 rounded-[10px] text-[10px] font-bold uppercase tracking-widest transition-all flex items-center justify-center space-x-2 disabled:opacity-30 disabled:cursor-not-allowed"
-                  title="Générer avec l'IA"
-                >
-                  {isGeneratingEmail ? <i className="fas fa-circle-notch animate-spin"></i> : <i className="fas fa-magic"></i>}
-                  <span>Email IA</span>
-                </button>
-              </div>
+              <button
+                onClick={handleSendEmail}
+                disabled={isGeneratingEmail || !client.email}
+                className="w-full bg-indigo-500 hover:bg-indigo-400 py-3 rounded-[10px] text-xs font-bold uppercase tracking-widest transition-all flex items-center justify-center space-x-2 disabled:opacity-30 disabled:cursor-not-allowed"
+                title="Envoyer par Email"
+              >
+                {isGeneratingEmail ? <i className="fas fa-circle-notch animate-spin text-lg"></i> : <i className="far fa-envelope text-lg"></i>}
+                <span>Email</span>
+              </button>
               <button onClick={() => onAddPayment(invoice.id)} className="w-full bg-white text-indigo-600 py-3 rounded-[10px] text-xs font-bold uppercase tracking-widest transition-all shadow-lg hover:bg-indigo-50 flex items-center justify-center space-x-2">
                 <i className="fas fa-plus"></i>
                 <span>Payer</span>
